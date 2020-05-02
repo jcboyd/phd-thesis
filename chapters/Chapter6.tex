@@ -1,0 +1,17 @@
+% Chapter Template
+
+\chapter{Conclusion} % Main chapter title
+
+\label{Chapter6} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+
+Computational phenotyping is an ascendant methodology for the extraction of information from biological matter.
+
+In Chapter \ref{Chapter2} we introduced the high content analysis pipeline and applied it to a drug and morphological screen datasets for multiple triple-negative breast cancer (TNBC) cell lines. We produced a series of use cases spanning the range of univariate-, multivariate-, and machine learning-based analyses. We additionally saw how multiple cell lines could be analysed in unison, and explored their morphological differences, as well as the differential effects of drugs on their viability and cytotoxic effects such as double strand breaks. These insights were carried to 
+
+In Chapter \ref{Chapter3} we explored in great detail the construction of phenotypic profiles for charactersing drug effects. We reviewed and tested the most relevant existing approaches in a comparative study on mechanism of action (MOA) prediction. We then extended the methodology to a multi-cell-line drug screen, where we were able to show an autoencoder based on unsupervised domain adaptation could succeed in building domain-invariant features that outperformed baseline models in MOA prediction. We additionally found evidence to suggest that pooled multi-cell-line data provides more powerful representations for predicting the MOA of hold-out drugs than single-cell line datasets of the same size. In contrast with previous studies, we framed a use case for phenotypic profiling without tailoring the prediction problem to those MOAs with the most striking visual effects, yet confirmed MOA classification could be performed at well above a rate of random chance.
+
+Chapter \ref{Chapter4} compared two deep learning methodologies for quantifying CAR-T and Raji cell line cells in time lapse movies. Each methodology embodied a different approach to bypassing the bottleneck of unlabelled training sets for deep learning models. With a setup providing a paired image dataset of transmitted light and fluorescent channels
+
+The first apprach, based on image-to-image translation networks, including a generative adversarial variant, showed excellent results in the fluorescent labeling of cell populations for mCherry and GFP markers. The second approach. We were able to reconcile the two methodologies and demonstrate the degree of agreement between them over a set of experimental replicates.
+
+In the final Chapter \ref{Chapter5}, we sought a way to transcend the limitations of automatic ground truth assemblage encountered in Chapter \ref{Chapter4}. Here we found generative adversarial networks to 

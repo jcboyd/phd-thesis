@@ -1,0 +1,274 @@
+\documentclass[a4paper, 11pt]{book}
+
+\usepackage{algorithm,algpseudocode}
+
+%\usepackage{fontspec}
+\usepackage{lmodern}
+\usepackage{lipsum}
+\usepackage{psl-cover}
+\graphicspath{{Pictures/}} % Specifies the directory where pictures are stored
+\usepackage[parfill]{parskip}
+\usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
+%\usepackage{subfig}
+								% TeX will automatically convert eps --> pdf in pdflatex
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{natbib}
+
+%\usepackage{filecontents}
+\usepackage{here}
+\usepackage{multirow}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{arrows, arrows.meta, shapes.geometric, chains, patterns, shadows, fit, backgrounds}
+\usepackage{pgfplots, pgfplotstable}
+
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, node distance=3cm,
+    text width=5em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{line} = [draw, -latex']
+
+\usepackage{listings}% http://ctan.org/pkg/listings
+\lstset{
+  basicstyle=\ttfamily,
+  mathescape}
+
+\usepackage{hyperref}
+\hypersetup{urlcolor=blue, colorlinks=true}
+
+\usepackage{rotating}
+
+%\usepackage{subcaption}
+\usepackage{subfig}
+\usepackage{xcolor}
+\newcommand\myworries[1]{\textcolor{red}{#1}}
+\usepackage[TS1,T1]{fontenc}
+%\usepackage{fourier, heuristica}
+\usepackage{fancyvrb}
+\usepackage{array, booktabs}
+%\usepackage[x11names]{xcolor}
+\usepackage{colortbl}
+\usepackage{caption}
+\usepackage{bbm}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{float}
+\usepackage[autostyle]{csquotes}
+\usepackage{multirow}
+\usepackage{soul}
+\usepackage{longtable}
+
+
+
+\usepackage{array}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+\DeclareCaptionFont{blue}{\color{LightSteelBlue3}}
+\DeclareMathOperator*{\argmax}{\arg\!\max}
+
+\usepackage{listings}
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+    \makeatletter
+    \renewcommand\part{%
+       \if@openright
+         \cleardoublepage
+       \else
+         \clearpage
+       \fi
+       \thispagestyle{empty}%
+       \if@twocolumn
+         \onecolumn
+         \@tempswatrue
+       \else
+         \@tempswafalse
+       \fi
+       \null\vfil
+       \secdef\@part\@spart}
+    \makeatother
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color
+  basicstyle=\footnotesize,        % size of fonts used for the code
+  breaklines=true,                 % automatic line breaking only at whitespace
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{mygreen},    % comment style
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  keywordstyle=\color{blue},       % keyword style
+  stringstyle=\color{mymauve},     % string literal style
+}
+
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  showstringspaces=false,
+  commentstyle=\color{gray}\upshape
+numbers=right, 
+                numberstyle=\tiny, 
+                breaklines=true,
+                numbersep=5pt,
+                xleftmargin=.25in,
+                xrightmargin=.25in
+}
+
+\lstdefinelanguage{XML}
+{
+  morestring=[b]",
+  morestring=[s]{>}{<},
+  morecomment=[s]{<?}{?>},
+  stringstyle=\color{black},
+  identifierstyle=\color{blue},
+  keywordstyle=\color{cyan},
+  morekeywords={xmlns,version,type}% list your attributes here
+}
+
+% \newcommand{\foo}{\color{LightSteelBlue3}\makebox[0pt]{\textbullet}\hskip-0.5pt\vrule width 1pt
+% \hspace{\labelsep}}
+
+\newcommand{\p}{\text{p}}
+\newcommand{\setsep}{\;\; | \;\;}
+
+\title{Adversarial methods for computational phenotyping in cell-based assays}
+
+\author{Joseph BOYD}
+
+\institute{MINES ParisTech}
+\doctoralschool{Ing\'enierie des Syst\`emes, Mat\'eriaux, M\'ecanique, \'Energ\'etique}{621}
+\specialty{Bio-informatique}
+\date{jj mois aaaa}
+
+%% cotutelle 
+% \entitle{Thesis Subject in English}
+% \otherinstitute{CEA Saclay}
+% \logootherinstitute{logo-institute}
+
+\jurymember{1}{Pr\'enom NOM}{Titre, \'Etablissement}{Pr\'esident}
+\jurymember{2}{Pr\'enom NOM}{Titre, \'Etablissement}{Rapporteur}
+\jurymember{3}{Pr\'enom NOM}{Titre, \'Etablissement}{Rapporteur}
+\jurymember{4}{Pr\'enom NOM}{Titre, \'Etablissement}{Examinateur}
+\jurymember{5}{Pr\'enom NOM}{Titre, \'Etablissement}{Examinateur}
+\jurymember{6}{Pr\'enom NOM}{Titre, \'Etablissement}{Examinateur}
+\jurymember{7}{Pr\'enom NOM}{Titre, \'Etablissement}{Examinateur}
+\jurymember{8}{Pr\'enom NOM}{Titre, \'Etablissement}{Directeur de th\`ese}
+% \jurymember{9}{Prénom NOM}{Titre, établissement}{Invité}
+% \jurymember{10}{Prénom NOM}{Titre, établissement}{Invité}
+
+\frabstract{
+  Cuius acerbitati uxor grave accesserat incentivum,
+  germanitate Augusti turgida supra modum, quam Hannibaliano
+  regi fratris filio antehac Constantinus iunxerat pater,
+  Megaera quaedam mortalis, inflammatrix saevientis adsidua,
+  humani cruoris avida nihil mitius quam maritus; qui paulatim
+  eruditiores facti processu temporis ad nocendum per
+  clandestinos versutosque rumigerulos conpertis leviter
+  addere quaedam male suetos falsa et placentia sibi
+  discentes, adfectati regni vel artium nefandarum calumnias
+  insontibus adfligebant.
+
+  Saraceni tamen nec amici nobis umquam nec hostes optandi,
+  ultro citroque discursantes quicquid inveniri poterat
+  momento temporis parvi vastabant milvorum rapacium similes,
+  qui si praedam dispexerint celsius, volatu rapiunt celeri,
+  aut nisi impetraverint, non inmorantur.
+
+  Vita est illis semper in fuga uxoresque mercenariae
+  conductae ad tempus ex pacto atque, ut sit species
+  matrimonii, dotis nomine futura coniunx hastam et
+  tabernaculum offert marito, post statum diem si id elegerit
+  discessura, et incredibile est quo ardore apud eos in
+  venerem uterque solvitur sexus.
+
+  Sed tamen haec cum ita tutius observentur, quidam vigore artuum
+  inminuto rogati ad nuptias ubi aurum dextris manibus cavatis
+  offertur, inpigre vel usque Spoletium pergunt.\ haec nobilium sunt
+  instituta.
+}
+
+\enabstract{
+  Verum ad istam omnem orationem brevis est defensio. Nam
+  quoad aetas M. Caeli dare potuit isti suspicioni locum, fuit
+  primum ipsius pudore, deinde etiam patris diligentia
+  disciplinaque munita. Qui ut huic virilem togam deditšnihil
+  dicam hoc loco de me; tantum sit, quantum vos existimatis;
+  hoc dicam, hunc a patre continuo ad me esse deductum; nemo
+  hunc M. Caelium in illo aetatis flore vidit nisi aut cum
+  patre aut mecum aut in M. Crassi castissima domo, cum
+  artibus honestissimis erudiretur.
+
+  Et eodem impetu Domitianum praecipitem per scalas itidem
+  funibus constrinxerunt, eosque coniunctos per ampla spatia
+  civitatis acri raptavere discursu.\ iamque artuum et
+  membrorum divulsa conpage superscandentes corpora mortuorum
+  ad ultimam truncata deformitatem velut exsaturati mox
+  abiecerunt in flumen.
+
+  Erat autem diritatis eius hoc quoque indicium nec obscurum
+  nec latens, quod ludicris cruentis delectabatur et in circo
+  sex vel septem aliquotiens vetitis certaminibus pugilum
+  vicissim se concidentium perfusorumque sanguine specie ut
+  lucratus ingentia laetabatur.
+
+  Ego vero sic intellego, Patres conscripti, nos hoc tempore in
+  provinciis decernendis perpetuae pacis habere oportere rationem. Nam
+  quis hoc non sentit omnia alia esse nobis vacua ab omni periculo
+  atque etiam suspicione belli?
+}
+
+\frkeywords{ Caesar licentia post honoratis haec adhibens urbium
+  honoratis nullum Caesar.}
+\enkeywords{ Delatus delatus nominatus
+  onere aut trahebatur quod tenus et bonorum.}
+
+
+\begin{document}
+
+\maketitle{}
+
+%\lhead{\emph{Contents}} % Set the left side page header to "Contents"
+\tableofcontents % Write out the Table of Contents
+%
+%\lhead{\emph{List of Figures}} % Set the left side page header to "List of Figures"
+\listoffigures % Write out the List of Figures
+%
+%\lhead{\emph{List of Tables}} % Set the left side page header to "List of Tables"
+\listoftables % Write out the List of Tables
+
+\input{Chapters/chapter1}
+\part{Triple-negative breast cancer}
+\label{partI}
+\input{Chapters/chapter2}
+\input{Chapters/chapter3}
+\part{Chimeric antigen receptor T-cell therapy}
+\label{partII}
+\input{Chapters/chapter4}
+\input{Chapters/chapter5}
+\input{Chapters/chapter6}
+
+%\addtocontents{toc}{\vspace{2em}} % Add a gap in the Contents, for aesthetics
+
+\appendix % Cue to tell LaTeX that the following 'chapters' are Appendices
+
+% Include the appendices of the thesis as separate files from the Appendices folder
+% Uncomment the lines as you write the Appendices
+
+\input{Appendices/appendixA}
+\input{Appendices/appendixB}
+\input{Appendices/appendixC}
+\input{Appendices/appendixD}
+\input{Appendices/appendixE}
+\input{Appendices/appendixF}
+
+\label{Bibliography}
+
+%\lhead{\emph{Bibliography}} % Change the page header to say "Bibliography"
+
+\bibliographystyle{unsrtnat} % Use the "unsrtnat" BibTeX style for formatting the Bibliography
+
+\bibliography{Bibliography} % The references (bibliography) information are stored in the file named "Bibliography.bib"
+
+
+
+\end{document}
