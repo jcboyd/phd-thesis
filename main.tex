@@ -1,6 +1,10 @@
 \documentclass[a4paper, 11pt]{book}
 
+\newcommand{\tw}[1]{\textcolor{red}{\bf [TW:~#1]}}
+\newcommand{\twcomment}[1]{\textcolor{red}{\bf [TW (COMMENT):~#1]}}
+
 \usepackage{algorithm,algpseudocode}
+\usepackage{emptypage}
 
 %\usepackage{fontspec}
 \usepackage{lmodern}
@@ -58,8 +62,6 @@
 \usepackage{multirow}
 \usepackage{soul}
 \usepackage{longtable}
-
-
 
 \usepackage{array}
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
@@ -131,7 +133,7 @@ numbers=right,
 \newcommand{\p}{\text{p}}
 \newcommand{\setsep}{\;\; | \;\;}
 
-\title{Adversarial methods for computational phenotyping in cell-based assays}
+\title{Deep learning for computational phenotyping in cell-based assays \\ Apprentissage profond pour le ph\'enotypage num\'erique aux essais cellulaires}
 
 \author{Joseph BOYD}
 
@@ -237,15 +239,16 @@ numbers=right,
 \listoftables % Write out the List of Tables
 
 \input{Chapters/chapter1}
+\input{Chapters/chapter2}
 \part{Triple-negative breast cancer}
 \label{partI}
-\input{Chapters/chapter2}
 \input{Chapters/chapter3}
+\input{Chapters/chapter4}
 \part{Chimeric antigen receptor T-cell therapy}
 \label{partII}
-\input{Chapters/chapter4}
 \input{Chapters/chapter5}
 \input{Chapters/chapter6}
+\input{Chapters/chapter7}
 
 %\addtocontents{toc}{\vspace{2em}} % Add a gap in the Contents, for aesthetics
 
@@ -259,7 +262,6 @@ numbers=right,
 \input{Appendices/appendixC}
 \input{Appendices/appendixD}
 \input{Appendices/appendixE}
-\input{Appendices/appendixF}
 
 \label{Bibliography}
 
