@@ -6,9 +6,9 @@
 
 %\lhead{Chapter 2. \emph{Supervised Sequence Learning}} % Change X to a consecutive number; this is for the header on each page - perhaps a shortened title
 
-\textbf{Summary}: \emph{In this chapter the high content analysis pipeline is put into practice on two image datasets: a drug screen and a wild type screen of triple negative breast cancer cells. The implementation of a conventional pipeline for computational phenotyping is described in phases of cell segmentation and feature extraction. A collection of use cases are then described on each of the screens, covering the full range of univariate, multivariate, and machine learning-based analyses identified in the previous chapter, with the aim of understanding the morphological properties of the cell lines, and the effects of drug perturbation thereupon. We will here lay the groundwork for the }
+\textbf{Summary}: \emph{This chapter puts the high content analysis pipeline into practice on two image datasets: a drug screen and a wild type screen of triple negative breast cancer cell lines. The implementation of a conventional pipeline for computational phenotyping is described in phases of cell segmentation and feature extraction. A collection of use cases are then given on each of the screens, covering the full range of univariate, multivariate, and machine learning-based analyses identified in previously, with the aim of understanding the morphological properties of the cell lines, and the effects of drug perturbation thereupon. This lays the groundwork for the phenotypic profiling of the following chapter.}
 
-\textbf{R\'esum\'e}: \emph{Cette chapitre...}
+\textbf{R\'esum\'e}: \emph{Dans ce chapitre, le pipeline d'analyse \`a haut contenu est mis en pratique sur deux ensembles de donn\'ees d'images : un criblage de drogues et un criblage de type sauvage de lign\'ees cellulaires de cancer du sein triple n\'egatif. La mise en \oe uvre d'un pipeline classique pour le ph\'enotypage par ordinateur est d\'ecrite dans les phases de segmentation cellulaire et d'extraction de caract\'eristiques. Un ensemble de cas d'utilisation est ensuite d\'ecrit sur chacun des cribles, couvrant la gamme compl\`ete des analyses univari\'ees, multivari\'ees et bas\'ees sur l'apprentissage machine identifi\'ees au chapitre pr\'ec\'edent, dans le but de comprendre les propri\'et\'es morphologiques des lign\'ees cellulaires et les effets de la perturbation par la drogue sur celles-ci. Ceci pose les bases du chapitre suivant.}
 
 \section{Overview}
 
@@ -16,13 +16,11 @@ Triple-negative breast cancer (TNBC) is a variety of breast cancer whose cells d
 
 %\twcomment{mention the molecular heterogeneity of TNBC and cite the paper by Fabien on that topic.}
 
-Two datasets are considered in the following analysis on TNBC cell lines. The first is a pilot drug screen study by fluorescence microscopy on two TNBC cell lines (MDA231 and MDA468) (\cite{filmus1985mda}). The second dataset is a wild type screen of $12$ cell lines (\cite{chavez2010triple}) ($11$ TNBC cell lines and $1$ negative control), that is without perturbation. Part \ref{partI} of this dissertation focusses primarily on the drug screen data, but both datasets feature in the following analyses.
+Two datasets are considered in the following analysis on TNBC cell lines. The first is a pilot drug screen study on two TNBC cell lines (MDA231 and MDA468) (\cite{filmus1985mda}). The second dataset is a wild type screen of $12$ cell lines (\cite{chavez2010triple}) ($11$ TNBC cell lines and a negative control), that is, without perturbation. Part \ref{partI} of this dissertation focusses primarily on the drug screen data, but both datasets feature in the following analyses.
 
-\subsection{Drug screen dataset}
+\section{Datasets}
 
-The drug screen pilot data set (Table \ref{table:drugscreen}) is an assay of two microplates each housing a grid of $384$ ($18 \times 24$) wells, labeled A01-P24, (alphabetic character denoting the row of the well on the plate, numeric denoting the column). One plate tests TNBC cell line MDA231, the other MDA468. Wells were seeded to confluence with a controlled 1000 and 1250 cells for MDA231 and MDA468 cell lines respectively. The drugs are allocated according to a \emph{plate map} (given in full in Appendix \ref{AppendixB}), which is applied for both plates. $36$ wells are treated with the neutral agent dimethyl sulfoxide DMSO as a negative control, $2$ with positive controls (Olaparib, Cisplatine), $166$ with test compounds (concentration $10\mu M$), and $184$ untreated (denoted empty). Following hibernation, the cells were fixed, washed, and stained with four fluorescent markers. A final washing procedure is performed, where extraneous dye content is aspirated from the wells, finally preserving only the chemically-bound dye compounds excited during the microscopy, and further evacuating all cells unfastened to the well, as a consequence of perturbation or otherwise. This step has consequences for the analysis, as it may remove cells dead prior to fixation, ostensibly leaving an absence of cells as a proxy for high levels of apoptosis, indicating a cytotoxic compound. The array of perturbations show a range of effects on cell mortality, from no apparent visual effect to a near or complete elimination of cells.
-
-The drugs comprise of a set of panels of kinase, protease and phosphatase inhibitors and can be categorised into 70 mechanism of action (MOA) classes of varying sizes, according to their targets. For our experiments, we take the 8 MOA classes having at least five member drugs. These are CDK inhibitors, cysteine protease inhibitors, EGF receptor kinase inhibitors, MMP inhibitors, DMSO (negative control), PKC inhibitors, protein tyrosine phosphatase inhibitors, and tyrosine kinase inhibitors. In comparison with other datasets, \cite{adams2006compound} used 51 drugs in 13 MOA categories, \cite{slack2008characterizing} used 35 drugs in six MOA categories, and the widely studied Broad Institute Benchmark Collection 21 (BBBC21v2) \cite{ljosa2012annotated} -- used, for example, in \cite{kandaswamy2016high} and \cite{godinez2017multi} -- consists of 39 drugs in 13 categories. The key difference is that our own MOA classes were not selected \emph{a posteriori} to reflect visually different phenotypes, mounting a greater bioinformatic challenge than the standard benchmark datasets, where even a simple model can be extremely effective. For example, \cite{singh2014pipeline} achieved $90\%$ accuracy with element-wise averaging of hand-crafted features after a simple luminosity correction.
+The drug screen pilot data set (Table \ref{table:drugscreen}) is an assay of two microplates each housing a grid of $384$ ($18 \times 24$) wells, labeled A01-P24, (alphabetic character denoting the row of the well on the plate, numeric denoting the column). One plate tests TNBC cell line MDA231, the other, MDA468. Wells were seeded to confluence with a controlled 1000 and 1250 cells for MDA231 and MDA468 cell lines respectively. The drugs are allocated according to a \emph{plate map} (given in full in Figure \ref{fig:plate_map_sideways}), which is applied for both plates. $36$ wells are treated with the neutral agent dimethyl sulfoxide DMSO as a negative control, $2$ with positive controls (Olaparib, Cisplatine), $166$ with test compounds (concentration $10\mu M$), and $184$ untreated (denoted empty). Following hibernation, the cells were fixed, washed, and stained with four fluorescent markers. A final washing procedure is performed, where extraneous dye content is aspirated from the wells, finally preserving only the chemically-bound dye compounds excited during the microscopy, and further evacuating all cells unfastened to the well, as a consequence of perturbation or otherwise. This step has consequences for the analysis, as it may remove cells dead prior to fixation, ostensibly leaving an absence of cells as a proxy for high levels of apoptosis, indicating a cytotoxic compound. The array of perturbations show a range of effects on cell mortality, from no apparent visual effect to a near or complete elimination of cells. The drugs comprise of a set of panels of kinase, protease and phosphatase inhibitors and can be categorised into 70 mechanism of action (MOA) classes of varying sizes, according to their targets.
 
 \begin{table}
 \begin{center}
@@ -33,12 +31,20 @@ Plate/cell line & Well, field & Channel & Acquisition Mode \\
 MDA231, MDA468 & Plate row (A-P), column (1-24), well field (1-4) e.g. A01\_01 & DAPI, Cy3, Cy5, FITC & 2D, 2D-Decon, Adv2D-Decon, 2.5D \\
 \hline
 \end{tabular}
-\caption{The drug screen pilot data, consisting of two cell lines on 384-well plates, with four fields per well. Four fluorescence channels are captured, under four acquisition modes. The full data set of 49152 images is the outer product of each of the table fields.}
+\caption{The drug screen pilot data, consisting of two cell lines on separate 384-well plates, with four fields per well. Four fluorescence channels are captured, under four acquisition modes. The full data set of $49152$ images is the outer product of each of the table fields.}
 \label{table:drugscreen}
 \end{center}
 \end{table}
 
-Fluorescence microscopy ($20\times$ magnification widefield with deconvolution image restoration) was performed at four non-overlapping fields of view per well produced two experimental datasets of 1536 multiplexed images apiece. The stains used in the screen are listed in Table \ref{table:cell_states}. \emph{DAPI} (4',6-diamidino-2-phenylindole) is a bright blue stain that permeates a cell's nuclear membrane and binds to regions of DNA rich in A-T base pairs. DAPI is effective in highlighting the cell nucleus, where the DNA is housed. Cyanine 3 (Cy3) and cyanine 5 (Cy5) are commonly used dyes belonging to a common family. Here, Cy3 is conjugated to a $\gamma$-H2AX antibody. $\gamma$-H2AX is a protein that naturally binds to double-strand breaks as a marker for the repair of DNA damage. Furthermore Cy5 is conjugated to a $\beta$-tubulin antibody, thus highlighting this sub-component of the tubulin polymer that constitutes \emph{microtubules}, which are structure-providing components of cells. Finally, FITC (fluorescein isothiocyanate) highlights phospholipids, molecules in the lipid cellular membrane. Figure \ref{fig:drug_full_fluorescence} shows a composite of DAPI, Cy5, and Cy3 fluorescence channels for an indicative field from the drug screen.
+Fluorescence microscopy ($20\times$ magnification widefield with deconvolution image restoration) was performed at four non-overlapping fields of view per well, producing two experimental datasets of $1536$ multiplexed images apiece. The stains used in the screen are listed in Table \ref{table:stains}. \emph{DAPI} (4',6-diamidino-2-phenylindole) is a bright blue stain that permeates a cell's nuclear membrane and binds to regions of DNA rich in A-T base pairs. DAPI is effective in highlighting the cell nucleus, where the DNA is housed. Cyanine 3 (Cy3) and cyanine 5 (Cy5) are widely used dyes belonging to a common family. Here, Cy3 is conjugated to a $\gamma$-H2AX antibody. $\gamma$-H2AX is a protein that naturally binds to double-strand breaks as a marker for the repair of DNA damage. Furthermore, Cy5 is conjugated to a $\beta$-tubulin antibody, thus highlighting this sub-component of the tubulin polymer that constitutes microtubules, which are structure-providing components of cells. Finally, FITC (fluorescein isothiocyanate) highlights phospholipids, molecules in the lipid cellular membrane. Figure \ref{fig:drug_full_fluorescence} shows a composite of DAPI, Cy5, and Cy3 fluorescence channels for an indicative field from the drug screen.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.95\textwidth]{img/channels.png}
+\caption{Fluorescence image of MDA231 cells. DAPI highlighting the nuclei in blue, cyanine 5 highlighting the microtubules in red, and cyanine 3 highlighting the double-strand breaks as white spots on the cell nuclei.}
+\label{fig:drug_full_fluorescence}
+\end{center}
+\end{figure}
 
 \begin{table}
 \begin{center}
@@ -60,14 +66,14 @@ FITC & Phospholipids in cell membrane\\
 \end{center}
 \end{table}
 
-The microscopy was performed in various \emph{acquisition modes}, whereby imagery is captured in different ways. These are: 2D (raw camera output), 2D + deconvolution (2D with blur reduction), Advanced 2D + deconvolution (combination of image 3-stack), and 2.5D acquisition and deconvolution (aggregation over 3D image stack). Each mode captured the same cells at virtually the same time. The 2.5D mode was chosen for all analysis contained in Part \ref{partI} as it exhibited the sharpest detail from manual visual inspection.
+The microscopy was performed in various \emph{acquisition modes}, whereby the imagery is captured in different ways. These are: 2D (raw camera output), 2D + deconvolution (2D with blur reduction), Advanced 2D + deconvolution (combination of image 3-stack), and 2.5D acquisition and deconvolution (aggregation over 3D image stack). Each mode captured the same cells at virtually the same time. The 2.5D mode was chosen for all analysis contained in Part \ref{partI} as it exhibited the sharpest detail from manual visual inspection.
 
 %Finally, as the raw images occupied intensities in different ranges, a normalisation procedure was carried out to ensure every image sat in a common 8-bit range. This was done by first calculating the minimum and maximum intensities per channel over an entire plate, and scaling each image: $\text{new$\_$intensity(pixel)} = 255 \times (\text{old$\_$intensity(pixel)} - \min) / (\max - \min)$. In the case of the tertiary channel (cyanine5), the $95$th-percentile was used rather than the maximum. The greater surface area occupied by cy5 meant this channel suffers most from extreme outliers, leading to a saturation effect when the maximum was used for normalisation.
 
 \subsection{Wild type screen dataset}
 \label{subsec:morphogical}
 
-In the wild type screen, $12$ cell lines were imaged, including $11$ TNBC cell lines (see Table \ref{table:morphscreen}), distributed evenly over a $96$-well plate ($8$ rows, $12$ columns). In contrast to the drug screen, the objective was to monitor cell wild type morphologies, hence no chemical compounds were included in the wells for the screen. The cell line MCF10A is immortalised but non-tumorigenic, and serves as a negative control. The dataset is significantly smaller than that of the drug screen, albeit with five fields of view imaged per well. The same fluorescent markers as used in the drug screen are used (Table \ref{table:stains}), except for the fourth channel, which uses the FITC marker for half the plate, and rhodanine for the other half to monitor expression of tumour-suppressor protein p53.
+In the wild type screen, $12$ cell lines were imaged, including $11$ TNBC cell lines (see Table \ref{table:morphscreen}), distributed evenly over a $96$-well plate ($8$ rows, $12$ columns). In contrast to the drug screen, the objective was to monitor cell wild type morphologies, therefore no chemical compounds were included in the wells for the screen. The cell line MCF10A is immortalised but non-tumorigenic, and serves as a negative control. The dataset is significantly smaller than that of the drug screen, albeit with five fields of view imaged per well. The same fluorescent markers used in the drug screen are used except for the fourth channel, which uses the FITC marker for half the plate, and rhodanine for the other half to monitor expression of tumour-suppressor protein p53.
 
 \begin{table}
 \begin{center}
@@ -92,46 +98,38 @@ Cell line & Site$^1$ & Pathology$^2$ & Molecular classification \\
 BT-20 & PT & IDC & Basal A\\
 BT-549 & PT & IDC & Basal B\\
 \hline
-HS-578T & PT & IDC & Basal B\\
-\hline
 HCC-38 & PT & IDC & Basal A\\
 HCC-70 & PT & IDC & Basal A\\
 HCC-1143 & PT & IDC & Basal A\\
 HCC-1937 & PT & IDC & Basal A\\
+\hline
+HS-578T & PT & IDC & Basal B\\
+\hline
+MCF-10A & NB & Fibrocystic & Basal B\\
 \hline
 MDA-MB-157 & PE & IMC & Basal B\\
 \textbf{MDA-MB-231} & PE & AC & Basal B\\
 MDA-MB-436 & PE & IDC & Basal B\\
 \textbf{MDA-MB-468} & PE & AC & Basal A\\
 \hline
-MCF-10A & NB & Fibrocystic & Basal B\\
-\hline
 \end{tabular}
-\caption{TNBC cell lines and negative control MCF-10A properties referenced from \cite{chavez2010triple}. Drug screen cell lines indicated in bold. $^1$Site: PT, primary tumour; PE, pleural effusion; NB, normal breast. $^2$Pathology: IDC, infiltrating ductal carcinoma; IMC, infiltrating medullary carcinoma; AC, adenocarcinoma.}
+\caption{TNBC cell lines and negative control MCF-10A properties referenced from \cite{chavez2010triple}. Drug screen cell lines indicated in bold. $^1$Site: NB, normal breast; PE, pleural effusion; PT, primary tumour. $^2$Pathology: AC, adenocarcinoma; IDC, infiltrating ductal carcinoma; IMC, infiltrating medullary carcinoma.}
 \label{table:cell_lines_molecular}
 \end{center}
 \end{table}
 
-Table \ref{table:cell_lines_molecular} collates properties of the $12$ cell lines, from which one can begin to appreciate the heterogeneity at play. The MDA family derive from pleural effusions, that is, from a fluid buildup in the patient, while all others derive from primary tumours. The molecular classification Basal A characterises cells that are more luminal while Basal B are more basal\cite{dai2017breast}. These determine imply different functions of the cells. Not listed are relevant information on common tumour suppressor genes: all cell lines (aside from the negative) exhibit a p53 mutation; contrarily, most exhibit wild type BRCA1\footnote{Breast cancer type 1 susceptibility protein}, aside from cell lines HCC-1937 and MDA-MB-436. For the curious reader, the cell lines are prefixed generally according to the research group behind their discovery: BT (Breast Tumour) (\cite{lasfargues1958cultivation}); HS (Hackett + Smith) (\cite{hackett1977two}); HCC (Hamon Center) (\cite{gazdar1998characterization}); MDA (MD Anderson Cancer Center) (\cite{brinkley1980variations}); MCF (Michigan Cancer Foundation) (\cite{soule1990isolation}).
-
-\begin{figure}[h]
-\begin{center}
-\includegraphics[width=0.95\textwidth]{img/channels.png}
-\caption{Fluorescence image of MDA231 cells. DAPI highlighting the nuclei in blue, cyanine 5 highlighting the microtubules in red, and cyanine 3 highlighting the double-strand breaks as white spots on the cell nuclei.}
-\label{fig:drug_full_fluorescence}
-\end{center}
-\end{figure}
+Table \ref{table:cell_lines_molecular} collates properties of the $12$ cell lines, from which one can begin to appreciate the heterogeneity at play. The MDA family derive from pleural effusions, that is, from a fluid buildup in the patient, while all others derive from primary tumours. The molecular classification Basal A characterises cells that are more luminal while Basal B are more basal (\cite{dai2017breast}). These imply different functions of the cells. Not listed are relevant information on common tumour suppressor genes: all cell lines (aside from the negative) exhibit a p53 mutation; contrarily, most exhibit wild type BRCA1\footnote{Breast cancer type 1 susceptibility protein}, aside from cell lines HCC-1937 and MDA-MB-436. For the curious reader, the cell lines are prefixed generally according to the research group behind their discovery: BT (Breast Tumour) (\cite{lasfargues1958cultivation}); HCC (Hamon Center) (\cite{gazdar1998characterization}); HS (Hackett + Smith) (\cite{hackett1977two}); MCF (Michigan Cancer Foundation) (\cite{soule1990isolation}); MDA (MD Anderson Cancer Center) (\cite{brinkley1980variations}).
 
 \section{Cell measurement pipeline}
 \label{sec:cell_measurement}
 
-As mentioned in the introductory Section \ref{subsec:HCA}, the basis of high content analysis are the \emph{features} measured on individual cells. The conventional path to measuring cellular features entails an initial segmentation of individual cells. This section describes the segmentation strategy as well as the features extracted for both the drug and wild type screen datasets described above. These procedures underpin standard preliminary analyses of the data (Section \ref{sec:use_cases}), as well as the developments described in later chapters.
+As mentioned in Section \ref{subsec:HCA}, the basis of high content analysis are the \emph{features} measured on individual cells. The conventional path to measuring cellular features entails an initial segmentation of individual cells. This section describes the segmentation strategy as well as the features extracted for both the drug and wild type screen datasets. These procedures underpin standard preliminary analyses of the data (Section \ref{sec:use_cases}), as well as the developments described in later chapters.
 
 %In our drug screen, the final segmentation yields $122307$ cells for cell line MDA231 and $97134$ cells for cell line MDA468, over $384$ microplate wells each, whereas for our wild type screen we obtain $36338$ cells over $96$ wells.
 
 \subsection{Nuclei segmentation}
 
-The cell nucleus is the logical starting point for cell segmentation (see Figure \ref{fig:segmentation}). Roughly speaking, most nuclei are visible, uniformly-sized, and ellipsoidal, and, crucially, seldom overlap, as the cell surrounding cell membrane acts as a buffer to other cells, and as the cell density has been chosen such that cells do not grow on top of each other. As a result, they are typically the easiest thing to accurately segment in the fluorescent stack, and may then be used as the starting point for segmenting other cytological components. The segmentation typically follows three stages: pre-filtering, detection, and refinement.
+The cell nucleus is the logical starting point for cell segmentation (see Figure \ref{fig:segmentation}). Roughly speaking, most nuclei are visible, uniformly-sized, and ellipsoidal, and, crucially, seldom overlap, as the surrounding cell membrane acts as a buffer to other cells, and as the cell density has been chosen such that cells do not grow on top of each other. As a result, they are typically the easiest thing to accurately segment in the fluorescent stack, and may then be used as the starting point for segmenting other cytological components. The segmentation typically follows three stages: pre-filtering, background subtraction, and refinement.
 
 \begin{figure}[ht]
 \centering
@@ -145,80 +143,67 @@ The cell nucleus is the logical starting point for cell segmentation (see Figure
 A common approach to pre-filtering is median filtering (\cite{huang1979fast}), which can be very effective in eliminating noise. The approach works as a sliding window over the image. Thus, for image $f: (X \times Y) \to V$ and window $W(x, y)$ centered on $(x, y)$ of size $m\times n$, one creates a pre-filtered image $p$ with,
 
 \begin{equation}
-p(x, y) = \text{median}\{f(x', y') | (x', y') \in W(x, y)\}
+p(x, y) = \text{median}\{f(x', y') | (x', y') \in W(x, y)\}.
 \end{equation}
 
-Note the median is an appropriate operator to use as it is robust to outliers, unlike the mean. Note, however, that the elimination of noise may come at the cost of linking separated objects as, depending on the size of the filter, the pixels between nearby objects can be interpreted as outliers.
+Note the median is an appropriate operator to use as it is robust to outliers, unlike the mean. Note also, however, that the elimination of noise may come at the cost of linking separated objects as, depending on the size of the filter, the pixels between nearby objects can be interpreted as outliers.
 
 \subsubsection{Background subtraction}
 
 In order to detect the contours of the cell nuclei, one takes the pre-filtered image $p$ and performs a background subtraction. This again works with a sliding window, $W$, of size $m\times n$, which calculates the local mean intensity for a pixel $b(x, y)$, giving,
 
 \begin{equation}
-b(x, y) = \frac{1}{mn}\sum_{i = -\lfloor m/2\rfloor}^{+\lfloor m/2\rfloor}\sum_{j= -\lfloor m/2\rfloor}^{+\lfloor m/2\rfloor} p(x +i, y + j)
+b(x, y) = \frac{1}{mn}\sum_{i = -\lfloor m/2\rfloor}^{+\lfloor m/2\rfloor}\sum_{j= -\lfloor m/2\rfloor}^{+\lfloor m/2\rfloor} p(x +i, y + j),
 \end{equation}
 
 with which one can perform the subtraction yielding,
 
 \begin{equation}
-r(x, y) = \max(0, p(x, y) - b(x, y))
+r(x, y) = \max(0, p(x, y) - b(x, y)).
 \end{equation}
 
 Note that values in $r$ will now be close to zero, with non-zeros corresponding to regions of high intensity gradient. One can therefore identify the contours of the cells, $c(x, y)$ by applying a threshold $t$ giving,
 
 \begin{equation}
-c(x, y) = \mathbbm{1}\{r(x, y) \geq t\}
+c(x, y) = \mathbbm{1}\{r(x, y) \geq t\}.
 \end{equation}
 
 The nuclei contours may be filled to produce a final segmentation mask.
 
 \subsubsection{Refinement}
 
-In the ideal case of well-separated cells, the aforementioned procedures might be sufficient for perfect nuclei segmentation. However, in practice, some additional steps are required to segment overlapping cells. One of the most classical and widely used refinement approaches is the \emph{watershed} algorithm (\cite{beucher1979use}) applied to the inverse distance map of the segmentation result\footnote{The distance map is the image formed by the distances of the shortest path to the background for every foreground pixel in a segmentation mask.}. Informally, the watershed algorithm simulates a flooding of the topography of the intensity levels in an image. The meeting points of the growing regions build the \emph{watershed line}, which is amounts to a separating line between objects. This method partitions the initially identified object into as many regions as there are local minima of the inverse distance map. In order to avoid over-segmentation due to small irregularities in the object boundary potentially leading to local minima, one selects local minima according to their morphological dynamic (\cite{Grimaud1992}).
+In the ideal case of well-separated cells, the aforementioned procedures might be sufficient for perfect nuclei segmentation. However, in practice, some additional steps are required to segment overlapping cells. One of the most enduring refinement approaches is the \emph{watershed} algorithm (\cite{beucher1979use}) applied to the inverse distance map of the segmentation result\footnote{The distance map is the image formed by the distances of the shortest path to the background for every foreground pixel in a segmentation mask.}. Informally, the watershed algorithm simulates a flooding of the topography of the intensity levels in an image. The meeting points of the growing regions build the \emph{watershed line}, which amounts to a separating line between objects. This method partitions the initially identified object into as many regions as there are local minima of the inverse distance map. In order to avoid over-segmentation due to small irregularities in the object boundary potentially leading to local minima, one selects local minima according to their morphological dynamic (\cite{Grimaud1992}).
 
 \subsection{Cell membrane segmentation}
 
-With the cell nuclei segmented on the DAPI channel, one proceeds to segment the cell cytoskeleton, approximated by the microtubules on the Cy5 channel. Here we follow the approach of \cite{jones2005voronoi}, which uses the cell nuclei as seeds for the more difficult cell membrane segmentation. The approach consists of defining a specialised distance metric that accounts for changes in intensity (high gradients), with the matrix,
+With the cell nuclei segmented on the DAPI channel, one may then segment the cell cytoskeleton, approximated by the microtubules on the Cy5 channel. Such is the strategy of \cite{jones2005voronoi}, who use the cell nuclei as seeds for the more difficult cell membrane segmentation. The approach consists of defining a specialised distance metric that accounts for changes in intensity (high gradients), with the matrix,
 
 \begin{equation}
-\mathbf{G} = \begin{bmatrix}
-(\frac{\partial g}{\partial x})^2 & \frac{\partial g}{\partial y}\cdot\frac{\partial g}{\partial x}\\
-\frac{\partial g}{\partial x}\cdot\frac{\partial g}{\partial y} & (\frac{\partial g}{\partial y})^2
-\end{bmatrix}
+\mathbf{G} = \frac{1}{1 + \lambda }\cdot\begin{bmatrix}
+(\frac{\partial g}{\partial x})^2 + \lambda & \frac{\partial g}{\partial y}\cdot\frac{\partial g}{\partial x}\\
+\frac{\partial g}{\partial x}\cdot\frac{\partial g}{\partial y} & (\frac{\partial g}{\partial y})^2 + \lambda
+\end{bmatrix},
+\label{eq:reimannian_metric}
 \end{equation}
 
-where $\mathbf{g}(\mathcal{I})$ is Gaussian blur, whose gradients are simply the finite central difference of the adjacent pixels (these too can be defined by convolutions), and infinitesimal distances are calculated as,
+where $\mathbf{g}(\mathcal{I})$ is Gaussian blur, whose gradients are simply the finite central difference of the adjacent pixels (these too can be defined by convolutions) and $\lambda$ is a regularisation parameter. Under this metric, infinitesimal distances are calculated as,
 
 \begin{equation}
-||d\mathbf{x}||_{\mathbf{G}}^2 = d\mathbf{x}^T\mathbf{G}d\mathbf{x}
+||d\mathbf{x}||_{\mathbf{G}}^2 = d\mathbf{x}^T\mathbf{G}d\mathbf{x}.
 \label{eq:infinitesimal}
 \end{equation}
 
-In reality, we have,
-
-\begin{equation}
-G = \frac{\nabla g(f)\nabla^Tg(f) + \lambda I}{1+\lambda},
-\end{equation}
-
-hence the distance between two points is given by the compromise between gradient based distance and Euclidean distance,
-
-\begin{equation}
-dx^TGdx = \frac{\|dx^T\nabla g(f)\|^2 + \lambda\|dx\|^2}{1+\lambda}
-\end{equation}
-
-The distance metric is defined for neighbouring pixels. Distances between non-adjacent pixels are computed as the shortest path (for example with Dijkstra's algorithm). Thus, the metric behaves like a spatial distance metric on flat, uniform regions, yet takes intensity into account where necessary. The segmentation is performed by assigning pixels to the nearest seed, that is, cell nucleus, under this Euclidean-regularised metric. One may see from Equation \ref{eq:infinitesimal} that the metric converges to Euclidean distance as $\lambda \to \infty$. Hence, the segmentation becomes a Voronoi tesselation in the limit. 
-
-The tunable parameters of the algorithm are: the size (receptive field) of $g\mathcal{I}$; an initial global thresholding step to eliminate the background, for example with an Otsu threshold (\cite{otsu1979threshold}); and the regularisation $\lambda$.
+The distance metric is defined for neighbouring pixels. Distances between non-adjacent pixels are computed as the shortest path, for example with Dijkstra's algorithm. Thus, the metric behaves like a Euclidean distance metric on flat, uniform regions, yet takes intensity into account where necessary. The segmentation is performed by assigning pixels to the nearest seed, that is, cell nucleus, under the metric. One may see from Equation \ref{eq:reimannian_metric} that the metric converges to Euclidean distance as $\lambda \to \infty$. Hence, the segmentation becomes a Voronoi tesselation in the limit. The tunable parameters of the algorithm are: the size (receptive field) of $g\mathcal{I}$; an initial global thresholding step to eliminate the background, for example with an Otsu threshold (\cite{otsu1979threshold}); and the regularisation $\lambda$.
 
 \subsection{Feature extraction}
 
-In order to quantify cellular phenotypes, features are extracted from the segmented cells. These features can be interpretable or general shape, intensity and texture descriptors. In this base line approach, I used the features provided by standard open-source software tools, here CellCognition\footnote{http://cellcognition-project.org}. Cell Cognition can export many hundreds of features for each fluorescent channel at the user's discretion. These features generally fall into the following categories: basic intensity features, basic shape features (e.g. RoI size, perimeter, circularity), convex hull features, distance map features, granulometry features, Haralick features, moments, and statistical geometric features (see \cite{held2010cellcognition, walter2010automatic} for a detailed description). 
+In order to quantify cellular phenotypes, features are extracted from the segmented cells. These features can be interpretable or general shape, intensity and texture descriptors. In this base line approach, the features used were provided by standard open-source software tools, here CellCognition\footnote{http://cellcognition-project.org}. The software can export many hundreds of features for each fluorescent channel at the user's discretion. These features generally fall into the following categories: basic intensity features, basic shape features (e.g. RoI size, perimeter, circularity), convex hull features, distance map features, granulometry features, Haralick features, moments, and statistical geometric features (see \cite{held2010cellcognition, walter2010automatic} for a detailed description).
 
 %\subsubsection{Haralick features}
 %
 %Haralick or gray level co-occurrence matrix (GLCM) features (\cite{haralick1973textural}) are used in image analysis as a measure of texture. One computes the matrix $\mathbf{H}$ where the element $\mathbf{H}(i, j)$ is equal to the number of times grayscale level $i$ and grayscale level $j$ (usually from an $8$-bit range) co-occur at a chosen offset $(\delta x, \delta y)$. The matrix is then reduced to a set of summary statistics (the features), such as correlation and entropy.
 
-In these experiments, 238 features were extracted for each of the DAPI and Cy5 channels, and 38 for the Cy3 channel, giving 516 features in total for each cell. These features are engineered to be plausibly discriminative, yet rarely have an immediate biological sense. Nevertheless, a minority of features can inform about some basic biological phenomena: the size of each segmented object (RoI size) on the DAPI channel directly quantifies nuclear size, from which one may infer about cell growth and aberrant phenomena such as chromosome segregation problems and consequent micronucleation; granulometry and Haralick features measure texture structures, which can be a proxy for mitochondria; average DAPI intensity can indicate an interphase cell prior to or after DNA replication; and spot features directly measure double-strand breaks (DSBs) on the Cy3 channel (see Section \ref{subsec:multivariate}).
+In these experiments, $238$ features were extracted for each of the DAPI and Cy5 channels, and $38$ for the Cy3 channel, giving $516$ features in total for each cell. These features are engineered to be plausibly discriminative, yet rarely have an immediate biological sense. Nevertheless, a minority of features can inform about some basic biological phenomena: the size of each segmented object (RoI size) on the DAPI channel directly quantifies nuclear size, from which one may infer about cell growth and aberrant phenomena such as chromosome segregation problems and consequent micronucleation; average DAPI intensity can indicate an interphase cell prior to or after DNA replication; and spot features directly measure double-strand breaks (DSBs) on the Cy3 channel (see Section \ref{subsec:multivariate}).
 
 \section{Use cases in high content analysis}
 \label{sec:use_cases}
@@ -227,7 +212,7 @@ The following section details a series of use cases of explorative analysis in t
 
 \subsection{Controlling for spatial effects in the drug screen dataset}
 \label{subsec:spatial_effects}
-One concern in HCS is the presence of systematic bias in the experimental setup. Controlling for this bias is the objective of a series of quality control techniques. In the pilot drug screen dataset, with a single plate per cell cell line, the most relevant concern is the presence of \emph{spatial bias}, that is, a dependency of the phenotypic readout on the position of the well on the plate. A common cause of such a bias is a temperature gradient inside the incubator during hibernation. This can result in an uneven evaporation of well solvents, in particular around the microplate borders, leading to an alteration of the drug concentration. Where spatial biases exist, their effects might be corrected for (\cite{Caraus2015, Ljosa2009}). However, the best solution is certainly to reconduct the experiments, as statistical correction only addresses effect strength, not phenotypic alterations (for example, if more cells are dead, one cannot infer what would have happened had the concentration been lower).
+One concern in HCS is the presence of systematic bias in the experimental setup. Controlling for this bias is the objective of a series of quality control techniques. In the pilot drug screen dataset, with a single plate per cell line, the most relevant concern is the presence of \emph{spatial bias}, that is, a dependency of the phenotypic readout on the position of the well on the plate. A common cause of such a bias is a temperature gradient inside the incubator during hibernation. This can result in an uneven evaporation of well solvents, in particular around the microplate borders, leading to an alteration of the drug concentration. Where spatial biases exist, their effects might be corrected for (\cite{Caraus2015, Ljosa2009}). However, the best solution is without question to reconduct the experiments, as statistical correction only addresses effect strength, not phenotypic alterations (for example, if more cells are dead, one cannot infer what would have happened had the concentration been lower).
 
 %\st{In Section} \ref{subsec:hcs} we discussed the use of the $Z$-factor as a validation for assay quality in high throughput screening. According to \cite{singh2014increasing}, however, the $Z$-factor is at odds with a high content phenotypic screen, as it is defined only for univariate readouts. Systematic biases or \emph{plate effects} are more usually combatted with a smaller number of replicates (four or five according to \cite{bray2016cell}).
 
@@ -244,7 +229,7 @@ One concern in HCS is the presence of systematic bias in the experimental setup.
     \subfloat[MDA231 PCA2]{{\includegraphics[width=0.45\textwidth]{img/plate_pca2_mda231.pdf}}}
     \qquad
     \subfloat[MDA468 PCA2]{{\includegraphics[width=0.45\textwidth]{img/plate_pca2_mda468.pdf}}}
-    \caption{Searching for spatial biases: comparison of cell counts (a), (b); comparison of first principal component of morphological profiles (c), (d); comparison of second principal component (e), (f), arranged according to the spatial . Left column (a), (c), and (e) pertain to cell line MDA231; right column (b), (d), (f) to cell line MDA468.}%
+    \caption{Searching for spatial biases: comparison of cell counts (a), (b); comparison of first principal component of morphological profiles (c), (d); comparison of second principal component (e), (f), arranged according to the plate map of the microplate. Left column (a), (c), and (e) pertain to cell line MDA231; right column (b), (d), (f) to cell line MDA468.}
     \label{fig:plateeffects}%
 \end{figure}
 
@@ -280,19 +265,19 @@ Spatial biases are investigated in Figure \ref{fig:plateeffects}. These figures 
 One of the initial aims of this TNBC pilot drug screen is simply to quantify cell \emph{viability}. In a viability assay, viability is conventionally measured in the range [0, 1] (\cite{pegg1989viability}). Given that cells are seeded at a fixed density, the change in the number of dead cells with respect to the negative control is an indication of the viability. The viability,
 
 \begin{equation}
-v = \frac{n^d}{n^-}
+v^d = \frac{n^d}{n^-},
 \end{equation}
 
-of cells in response to a drug $d$ refers to the change in the population size $n^d$ relative to that of the negative control $n^-$. Due to the effects of \emph{lysis} (cellular breakdown) and the washing procedure, the cells remaining at the point of imaging are the ``survivors'' of the drug perturbation. When cells are segmented, the viability of a drug is given by the cell sample size. When cells are not explicitly segmented, the viability is represented indirectly by how populated the field is. Viability is an important phenotypic characteristic of a drug effect. In Figure \ref{fig:viability} we are able to compare the number of segmented cells (therefore a proxy viability) between well populations of cell lines MDA231 and MDA468 subjected to the same perturbations. The majority of viabilities belong to a dense cluster of negative controls (\emph{DMSO} and \emph{None}) with an average of $289$ cells for cell line MDA231 and $227$ cells for MDA468. We additionally observe a small cluster of highly potent cytotoxic drugs near the origin. There is a positive correlation of $\rho = 0.6556$ for the viability of the two cell lines, suggesting that in many cases, one can actually expect a similar viability phenotype for both cell lines. However, a closer look at Figure \ref{fig:viability} shows that this is by no means true for all drugs. Some drugs act differentially on both cell lines, demonstrating the heterogeneous effect on distinct molecular TNBC subtypes discussed in section Section \ref{subsec:multi_cell_line_data}. These \emph{differential drug effects} correspond to the ``L''-structure traced by the data points skirting the horizontal and vertical axes of the plotting area.
+of cells in response to a drug $d$ refers to the change in the population size $n^d$ relative to that of the negative control $n^-$. Note that this can in principle exceed a value of $1$. Due to the effects of lysis (cellular breakdown) and the washing procedure, the cells remaining at the point of imaging are the ``survivors'' of the drug perturbation. When cells are segmented, the viability of a drug is given by the cell sample size. When cells are not explicitly segmented, the viability is represented indirectly by the foreground density of the field. Viability is an important phenotypic characteristic of a drug effect. In Figure \ref{fig:viability} we may compare the number of segmented cells (therefore a proxy viability) between well populations of cell lines MDA231 and MDA468 subjected to the same perturbations. The majority of viabilities belong to a dense cluster of negative controls (DMSO and None) with an average of $289$ cells for cell line MDA231 and $227$ cells for MDA468. We additionally observe a small cluster of highly potent cytotoxic drugs near the origin. There is a positive correlation of $\rho = 0.6556$ for the viability of the two cell lines, suggesting that in many cases, one can actually expect a similar viability phenotype for both cell lines. However, a closer look at Figure \ref{fig:viability} shows that this is by no means true for all drugs. Some drugs act differentially on both cell lines, demonstrating the heterogeneous effect on distinct molecular TNBC subtypes discussed in section Section \ref{subsec:multi_cell_line_data}. These \emph{differential drug effects} correspond to the ``L''-structure traced by the data points skirting the horizontal and vertical axes of the plotting area.
 
-This comparison furthermore allows us to categorise drugs as having no effect, joint effect, or separate effects on the two cell lines. Figure \ref{fig:viability_moas} visualises the same population data, this time coloured by selected drug mechanism of action (MOA) categories. We see, in particular, the success of protein kinase C (PKC) inhibitors in regularly killing most--if not all--cells in both cell lines, with a small cluster nearby the origin. Note that PKC inhibitors induce interesting phenotypes under other modes of analysis, as we shall see in both Section \ref{subsec:multivariate} and Section \ref{subsubsec:differential}.
+This comparison furthermore enables a categorisation of drugs as having no effect, joint effect, or separate effects on the two cell lines. Figure \ref{fig:viability_moas} visualises the same population data, this time coloured by selected drug mechanism of action (MOA) categories. We see, in particular, the success of protein kinase C (PKC) inhibitors in regularly killing most--if not all--cells in both cell lines, with a small cluster nearby the origin. Note that PKC inhibitors induce interesting phenotypes under other modes of analysis, as will be seen in both Section \ref{subsec:multivariate} and Section \ref{subsubsec:differential}.
 
 \subsection{Cell cycle modulates double-strand break rate}
 \label{subsec:multivariate}
 
-\emph{This section contains an excerpt from a paper published in at the International Symposium for Biomedical Imaging in 2018. The paper is reproduced in full in Appendix \ref{AppendixD}.}
+\emph{This section contains an excerpt from a paper published in the proceedings of the International Symposium for Biomedical Imaging in 2018. The paper is reproduced in full in Appendix \ref{AppendixC}.}
 
-An example of multivariate analysis in the assay arises in the analysis of double strand breaks (DSBs). Dysfunction of the DNA repair mechanisms is a major hallmark of cancer, also providing therapeutic opportunities. Monitoring DNA damage by the fluorescent labeling of double strand breaks (DSB) in cells is therefore an important readout in drug screening of cancer cell lines. DSBs occur when both strands of the DNA double helix are broken. DSBs have various causes, for example, cytotoxic radiation, or DNA replication over an existing single-strand break. Despite the natural DNA repair mechanisms of the cell, DSBs can be irreparable, leading ultimately to apoptosis, or hazardous DNA rearrangements. As such, DSBs are an interesting property to assess when analysing the effects of small compounds upon cancer cells. Three approaches to quantifying DSBs on the Cy3 fluorescence channel are compared, based on detecting and counting spots, granulometric features, and average intensity, which are mutually strongly correlated readouts.
+An example of multivariate analysis in the assay arises in the analysis of double strand breaks (DSBs). Dysfunction of the DNA repair mechanisms is a major hallmark of cancer, also providing therapeutic opportunities. Monitoring DNA damage by the fluorescent labeling of DSBs in cells is therefore an important readout in drug screening of cancer cell lines. DSBs occur when both strands of the DNA double helix are broken. DSBs have various causes, for example, cytotoxic radiation, or DNA replication over an existing single-strand break. Despite the natural DNA repair mechanisms of the cell, DSBs can be irreparable, leading ultimately to apoptosis, or hazardous DNA rearrangements. As such, DSBs are an interesting property to assess when analysing the effects of small compounds upon cancer cells. Three approaches to quantifying DSBs on the Cy3 fluorescence channel are compared, based on detecting and counting spots, granulometric features, and average intensity, which are mutually strongly correlated readouts.
 
 \begin{figure}[h!]%
     \centering
@@ -305,15 +290,15 @@ An example of multivariate analysis in the assay arises in the analysis of doubl
 \label{fig:dsb_figure}
 \end{figure}
 
-\emph{Spot density} (spot count normalised by nuclear size) is used as the basis of a DSB comparison between perturbations and negative control. The distribution of spot density from a perturbation is compared with that of the negative control in a Kolmogorov-Smirnov (KS) test. Hits are declared at a $p$-value of $0.01$, with multiple testing controlled for with a Benjamini-Hochberg correction. Significant results are displayed in Figure \ref{fig:dsb_figure_a}, ranked by median spot density and a sample of cells from a significant drug PKC-412 are shown in \ref{fig:dsb_figure_b}. 
+Spot density (spot count normalised by nuclear size) is used as the basis of a DSB comparison between perturbations and negative control. The distribution of spot density from a perturbation is compared with that of the negative control in a Kolmogorov-Smirnov (KS) test. Hits are declared at a $p$-value of $0.01$, with multiple testing controlled for with a Benjamini-Hochberg correction. Significant results are displayed in Figure \ref{fig:dsb_figure_a}, ranked by median spot density and a sample of cells from a significant drug PKC-412 are shown in \ref{fig:dsb_figure_b}. 
 
-Although some drugs have a clear effect on DSBs, they might also cause intermediate effects, which themselves modulate DSB rates. We see in Figure \ref{fig:dsb_figure_c} a bimodal distribution in fluorescent density on the DAPI channel, apparently reflecting subpopulations of cells in the G$_1$ and G$_2$ phases of the cell cycle. The higher frequency of low intensities corresponds to the longer G$_1$ phase meaning more cells will be fixed in this phase after hibernation. Because S phase (DNA replication) occurs between the G$_1$ and G$_2$ phases, there is more DNA available on which DSBs can occur.  Controlling for these phases produces different distributions of DSBs in the G$_1$ and G$_2$ subpopulations. This multivariate analysis thus reveals an \emph{effect modifier} of cell cycle phase on DSBs. Stratification is used to establish whether increased rates of DSBs are a direct effect of perturbation or an indirect effect of a modified cell cycle. See Appendix \ref{AppendixD} for further detail.
+Although some drugs have a clear effect on DSBs, they might also cause intermediate effects, which themselves modulate DSB rates. We see in Figure \ref{fig:dsb_figure_c} a bimodal distribution in fluorescent density on the DAPI channel, apparently reflecting subpopulations of cells in the G$_1$ and G$_2$ phases of the cell cycle. The higher frequency of low intensities corresponds to the longer G$_1$ phase meaning more cells will be fixed in this phase after hibernation. Because S phase (DNA replication) occurs between the G$_1$ and G$_2$ phases, there is more DNA available on which DSBs can occur.  Controlling for these phases produces different distributions of DSBs in the G$_1$ and G$_2$ subpopulations. This multivariate analysis thus reveals an \emph{effect modifier} of cell cycle phase on DSBs. Stratification is used to establish whether increased rates of DSBs are a direct effect of perturbation or an indirect effect of a modified cell cycle. See Appendix \ref{AppendixC} for further detail.
 
-PKC inhibitors are found to feature prominently among the drugs inducing highest spot densities per cell. However, we know from Section \ref{subsec:viability} that drugs in this MOA category often cause low viability. Populations with low sample size tend not to meet the significance criteria. It is therefore drugs such as PKC-412 (Figure \ref{fig:dsb_figure_b}), which kill fewer cells, that are ultimately declared as hits. Thus, we may identify a potential selection bias: DSBs are a cytotoxic effect that, when induced at a high rate by perturbation, should increase the rate of cell death. Given the experimental protocol, dead cells are not fixed and are lost during the fluorescence washing step. Hence, the more severe the drug effect on DSBs, the fewer the cells available for measurement. It is concluded in Appendix \ref{AppendixD} that this systematic bias cannot be resolved from the available data, and can only be avoided in future assays with an adjusted imaging protocol, but it points to potential problems in the interpretation of the derived hit list.
+PKC inhibitors are found to feature prominently among the drugs inducing highest spot densities per cell. However, we know from Section \ref{subsec:viability} that drugs in this MOA category often cause low viability. Populations with low sample size tend not to meet the significance criteria. It is therefore drugs such as PKC-412 (Figure \ref{fig:dsb_figure_b}), which kill fewer cells, that are ultimately declared as hits. This therefore presents a potential selection bias: DSBs are a cytotoxic effect that, when induced at a high rate by perturbation, should increase the rate of cell death. Given the experimental protocol, dead cells are not fixed and are lost during the fluorescence washing step. Hence, the more severe the drug effect on DSBs, the fewer the cells available for measurement. It is concluded in Appendix \ref{AppendixD} that this systematic bias cannot be resolved from the available data, and can only be avoided in future assays with an adjusted imaging protocol, and it also points to potential problems in the interpretation of the derived hit list.
 
 %shows that interpretation of hit lists calculated from univariate features is to be taken with care
 
-In this section, it has been shown that even in the case that one is interested only in a single feature (here the number of DSBs or a surrogate feature), it is still beneficial to use a multivariate readout in order to extract a better understanding and a cleaner analysis. In addition, the causal inference framework has been used in order to correct for confounding variables. Given that the analysis of DSBs is very widely used in the field of cancer drug screening, it is important to alert the scientific community to potential misinterpretations of their screening results.
+In this section, it has been shown that even in the case that one is interested only in a single feature (here the number of DSBs or a surrogate feature), it is still beneficial to use a multivariate readout in order to extract a better understanding and a cleaner analysis. In addition, the interactions of variables have been identified, revealing the necessity to correct for confounding variables. Given that the analysis of DSBs is so widely used in the field of cancer drug screening, it is important to alert the scientific community to potential misinterpretations of their screening results.
 
 %\subsection{Machine Learning for HCA}
 %
@@ -322,7 +307,7 @@ In this section, it has been shown that even in the case that one is interested 
 \subsection{TNBC cell lines assume distinct wild type morphologies}
 \label{subsec:tnbc_classification}
 
-At a glance, one can see that TNBC cell lines manifest distinct morphologies, even in the absence of perturbation. To better understand the degree of this difference, we turn to the wild type screen on $12$ cell lines ($11$ TNBC + negative control). The segmentation and feature extraction pipeline detailed in Section \ref{sec:cell_measurement} is used. With each cell described by a vector of features, one may proceed to aggregate the readouts so as to describe the cell population in a similar way. Such a phenotypic profile can, for example, summarily characterise the response of the cell population to a given drug perturbation. Profiles, comprising of vectors of aggregated features, can then serve as the basis of comparison between drug effects on a cell line. While this methodology is explored in detail in Chapter \ref{Chapter4}, here let us consider the special case where individual cell phenotypes are identifiable by an expert annotator. The strategy is thus to classify each cell into one of several meaningful biological classes and to describe the population as a profile proportions of cells in each of the phenotypic categories. This strategy is based on \cite{neumann2010phenotypic}.
+At a glance, one can see that TNBC cell lines manifest distinct morphologies, even in the absence of perturbation. To better understand the degree of this difference, we turn to the wild type screen on $12$ cell lines ($11$ TNBC + negative control). The segmentation and feature extraction pipeline detailed in Section \ref{sec:cell_measurement} is used. With each cell described by a vector of features, one may proceed to aggregate the readouts so as to describe the cell population in a similar way. Such a phenotypic profile can, for example, summarily characterise the response of the cell population to a given drug perturbation. Profiles, comprising of vectors of aggregated features, can then serve as the basis of comparison between drug effects on a cell line. While this methodology is explored in detail in Chapter \ref{Chapter4}, let us here consider the special case where individual cell phenotypes are identifiable by an expert annotator. The strategy is thus to classify each cell into one of several meaningful biological classes and to describe the population as a profile of proportions of cells in each of the phenotypic categories. This strategy is based on \cite{neumann2010phenotypic}.
 
 \begin{table}[h!]
 \begin{center}
@@ -336,7 +321,7 @@ At a glance, one can see that TNBC cell lines manifest distinct morphologies, ev
 \hline
 \includegraphics[width=1cm]{img/cell_states_bright.png} & Bright interphase & DAPI at higher intensity, due to cell cycle deregulation \\
 \hline
-\includegraphics[width=1cm]{img/cell_states_prometaphase.png} & Prometaphase & Mitotic phase, prior to division (short $\implies$ infrequent) \\
+\includegraphics[width=1cm]{img/cell_states_prometaphase.png} & Prometaphase & Mitotic phase, prior to division (short, therefore infrequent) \\
 \hline
 \includegraphics[width=1cm]{img/cell_states_metaphase.png} & Metaphase & Chromosome alignment \\
 \hline
@@ -357,13 +342,13 @@ Phenotypic profiles are not only informative about drug perturbations, but also 
 \begin{figure}[h!]
 \centering
 \includegraphics[width=0.95\textwidth]{img/profile.pdf}
-\caption{Morphological profiles of $12$ TNBC cell lines with $8$ replicates apiece, based on $7$ biologically meaningful classes, derived from manual annotation. One observes the phenotypic similarity between TNBC families.}
+\caption{Morphological profiles of $12$ TNBC cell lines with $8$ replicates apiece, based on $7$ biologically meaningful classes, derived from manual annotation. One observes the phenotypic similarity between cell line families.}
 \label{fig:morphological_profiles}
 \end{figure}
 
-$926$ cells were annotated in the wild type screen dataset\footnote{Later, a larger set of 6530 cells were annotated and released for pedagogical purposes at https://github.com/jcboyd/deep-learning-workshop/tree/cell-data}, according to seven morphological classes specified in Table \ref{table:cell_states}, from which were extracted the 239 DAPI-channel nuclei features. A SVM with RBF kernel was then trained, with hyperparameters optimised by grid search and $10$-fold cross-validation). The trained SVM was used to classify the remaining cells in the assay (some $36338$ cells in total). The number of cells in each phenotypic class are counted, and divided by the total to create phenotype profiles for each well, that is, a summary of seven proportions for each of the $96$ wells. The profiles were normalised by subtracting the average from the negative control cell line, MCF10A. The $96$ profiles ($8$ per cell line) are visualised in Figure \ref{fig:morphological_profiles}. We can see how families of TNBC cell lines cluster in their phenotypes. Of note are the cell lines of the drug screen, MDA231 and MDA468, which manifest predominantly normal interphase cells.
+$926$ cells were annotated in the wild type screen dataset\footnote{Later, a larger set of 6530 cells were annotated and released for pedagogical purposes at https://github.com/jcboyd/deep-learning-workshop/tree/cell-data}, according to seven morphological classes specified in Table \ref{table:cell_states}, from which were extracted the 239 DAPI-channel nuclei features. A SVM with RBF kernel was then trained, with hyperparameters optimised by grid search and $10$-fold cross-validation). The trained SVM was used to classify the remaining cells in the assay (some $36338$ cells in total). The number of cells in each phenotypic class are counted, and divided by the total to create phenotypic profiles for each well, that is, a summary of seven proportions for each of the $96$ wells. The profiles were normalised by subtracting the average from the negative control cell line, MCF10A. The $96$ profiles ($8$ per cell line) are visualised in Figure \ref{fig:morphological_profiles}. We can see how families of TNBC cell lines cluster in their phenotypes. Of note are the cell lines of the drug screen, MDA231 and MDA468, which manifest predominantly normal interphase cells.
 
-Figure \ref{fig:umap_cell_lines} plots a (two-dimensional) UMAP dimensionality reduction (\cite{mcinnes2018umap}) of a balanced sample of $150$ cells from $4$ of the $12$ cell lines. We see a clear separation of cell lines in the UMAP embedding, mirroring their distinctive appearance in the microscopy. Note that a subset of cell lines was chosen to avoid clutter, but the same degree of separation was observed across the $12$. The negative control cell line (MCF10A) is included, as is one of the cell lines studied in the drug screen (MDA231).
+Figure \ref{fig:umap_cell_lines} plots a (two-dimensional) UMAP dimensionality reduction (\cite{mcinnes2018umap}) of a balanced sample of $150$ cells from $4$ of the $12$ cell lines. We see a clear separation of cell lines in the UMAP embedding, mirroring their distinctive appearance in the microscopy. Note that a subset of cell lines was chosen to avoid visual clutter, but the similar degrees of separation were observed across the $12$. The negative control cell line (MCF10A) is included, as is one of the cell lines studied in the drug screen (MDA231).
 
 \begin{figure}[ht]
 \centering
@@ -399,9 +384,11 @@ Figure \ref{fig:umap_cell_lines} plots a (two-dimensional) UMAP dimensionality r
 \label{fig:umap_cell_lines}
 \end{figure}
 
-A random forest classifier with $500$ trees is also trained to classify cell lines in feature space. The data set is built from a balanced sampling of $150$ cells per cell line, totaling $1800$ cells, with $25\%$ of the data reserved for testing. The random forest achieves in excess of $70\%$ accuracy on the $450$ test samples. A confusion matrix is provided in Appendix \ref{AppendixA}. Repeated experiments reveal that the greatest confusion occurs between two cell lines of the same family: MDA231 and MDA436. Thus, even with a small fraction of the total data available for training (and little to no tuning), an off-the-shelf classifier achieves a strong accuracy. This demonstrates that the cells of distinct cell lines occupy different regions of the feature space and that their wild type morphologies are different.
+A random forest classifier with $500$ trees is also trained to classify cell lines in the feature space. The data set is built from a balanced sampling of $150$ cells per cell line, totaling $1800$ cells, with $25\%$ of the data reserved for testing. The random forest achieves in excess of $70\%$ accuracy on the $450$ test samples. A confusion matrix is provided in Appendix \ref{AppendixA}. Repeated experiments reveal that the greatest confusion occurs between two cell lines of the same family: MDA231 and MDA436. Thus, even with a small fraction of the total data available for training (and little to no tuning), an off-the-shelf classifier achieves high accuracy in discerning cells of different cell lines. This demonstrates that the cells of distinct cell lines occupy different regions of the feature space and that their basic wild type morphologies are different.
 
-In this section we have seen two levels of phenotypic distinction between TNBC cell line wild types. The first concerns the regulation of cell states, as in Figure \ref{fig:morphological_profiles}, where we saw how cell populations over different cell lines could be differentiated in a morphological profile, which appeared to cluster by pathology. Through annotation (first manual, then by classifier), these morphological classes abstracted away from the second distinction, that of the morphology of individual cells within each cell line, as in Figure \ref{fig:umap_cell_lines}. It is overcoming this second distinction that will play a strong role in the motivations of the methods of Chapter \ref{Chapter4}, albeit in an unsupervised setting where manual annotation is not feasible.
+\section{Discussion}
+
+This chapter has presented the HCA analysis pipeline and applied it to a set of use cases, providing first results on TNBC cell lines. In particular in Section \ref{subsec:tnbc_classification}, two levels of phenotypic distinction between TNBC cell line wild types have been demonstrated. The first concerns the regulation of cell states, as in Figure \ref{fig:morphological_profiles}, where we saw how cell populations over different cell lines could be differentiated in a morphological profile, which appeared to cluster by pathology. Through annotation (first manual, then by classifier), these morphological classes abstracted away from the second distinction, that of the morphology of individual cells within each cell line, as in Figure \ref{fig:umap_cell_lines}. It is overcoming this second distinction that will motivate the methods of Chapter \ref{Chapter4}, albeit in an unsupervised setting where manual annotation is no longer feasible.
 
 %\begin{figure}
 %\centering

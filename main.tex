@@ -133,96 +133,43 @@ numbers=right,
 \newcommand{\p}{\text{p}}
 \newcommand{\setsep}{\;\; | \;\;}
 
-\title{Deep learning for computational phenotyping in cell-based assays \\ Apprentissage profond pour le ph\'enotypage num\'erique aux essais cellulaires}
+\title{Deep learning for computational phenotyping in cell-based assays \\ {\normalfont \fontsize{18}{18}\selectfont Apprentissage profond pour le ph\'enotypage computationnel dans les essais cellulaires}}
 
 \author{Joseph BOYD}
 
 \institute{MINES ParisTech}
 \doctoralschool{Ing\'enierie des Syst\`emes, Mat\'eriaux, M\'ecanique, \'Energ\'etique}{621}
 \specialty{Bio-informatique}
-\date{jj mois aaaa}
+\date{30 Juin 2020}
 
-%% cotutelle 
+%% cotutelle
 % \entitle{Thesis Subject in English}
 % \otherinstitute{CEA Saclay}
 % \logootherinstitute{logo-institute}
 
-\jurymember{1}{Pr\'enom NOM}{Titre, \'Etablissement}{Pr\'esident}
-\jurymember{2}{Pr\'enom NOM}{Titre, \'Etablissement}{Rapporteur}
-\jurymember{3}{Pr\'enom NOM}{Titre, \'Etablissement}{Rapporteur}
-\jurymember{4}{Pr\'enom NOM}{Titre, \'Etablissement}{Examinateur}
-\jurymember{5}{Pr\'enom NOM}{Titre, \'Etablissement}{Examinateur}
-\jurymember{6}{Pr\'enom NOM}{Titre, \'Etablissement}{Examinateur}
-\jurymember{7}{Pr\'enom NOM}{Titre, \'Etablissement}{Examinateur}
-\jurymember{8}{Pr\'enom NOM}{Titre, \'Etablissement}{Directeur de th\`ese}
+\jurymember{1}{Charles KEVRANN}{Directeur de recherche, INRIA Rennes}{Rapporteur}
+\jurymember{2}{Anna KRESHUK}{Group leader, EMBL Heidelberg}{Rapporteur}
+\jurymember{3}{Auguste GENOVESIO}{Directeur de recherche, INSERM ENS}{Examinateur}
+\jurymember{4}{Florian JUG}{Group leader, MPI-CBG}{Examinateur}
+\jurymember{5}{Perrine PAUL-GILLOTEAUX}{Ing\'enieur de recherche, CNRS}{Examinateur}
+\jurymember{6}{David ROUSSEAU}{Professeur, Universit\'e d'Angers}{Examinateur}
+%\jurymember{7}{Veronique STOVEN}{Professeur, MINES Paristech}{Examinateur}
+%\jurymember{8}{Thomas WALTER}{Charg\'e de recherche, MINES Paristech}{Directeur de th\`ese}
+\jurymember{7}{Thomas WALTER}{Charg\'e de recherche, MINES Paristech}{Examinateur}
+\jurymember{8}{Veronique STOVEN}{Professeur, MINES Paristech}{Directeur de th\`ese}
 % \jurymember{9}{Pr√©nom NOM}{Titre, √©tablissement}{Invit√©}
 % \jurymember{10}{Pr√©nom NOM}{Titre, √©tablissement}{Invit√©}
 
 \frabstract{
-  Cuius acerbitati uxor grave accesserat incentivum,
-  germanitate Augusti turgida supra modum, quam Hannibaliano
-  regi fratris filio antehac Constantinus iunxerat pater,
-  Megaera quaedam mortalis, inflammatrix saevientis adsidua,
-  humani cruoris avida nihil mitius quam maritus; qui paulatim
-  eruditiores facti processu temporis ad nocendum per
-  clandestinos versutosque rumigerulos conpertis leviter
-  addere quaedam male suetos falsa et placentia sibi
-  discentes, adfectati regni vel artium nefandarum calumnias
-  insontibus adfligebant.
-
-  Saraceni tamen nec amici nobis umquam nec hostes optandi,
-  ultro citroque discursantes quicquid inveniri poterat
-  momento temporis parvi vastabant milvorum rapacium similes,
-  qui si praedam dispexerint celsius, volatu rapiunt celeri,
-  aut nisi impetraverint, non inmorantur.
-
-  Vita est illis semper in fuga uxoresque mercenariae
-  conductae ad tempus ex pacto atque, ut sit species
-  matrimonii, dotis nomine futura coniunx hastam et
-  tabernaculum offert marito, post statum diem si id elegerit
-  discessura, et incredibile est quo ardore apud eos in
-  venerem uterque solvitur sexus.
-
-  Sed tamen haec cum ita tutius observentur, quidam vigore artuum
-  inminuto rogati ad nuptias ubi aurum dextris manibus cavatis
-  offertur, inpigre vel usque Spoletium pergunt.\ haec nobilium sunt
-  instituta.
+Le ph\'enotypage computationnel est un ensemble de technologies Èmergentes permettant d'\'etudier systÈmatiquement le r\^ole du g\'enome dans l'obtention de ph\'enotypes, les caract\'eristiques observables d'un organisme et de ses sous-syst\`emes. En particulier, les essais cellulaires permettent de cribler des panels de petites mol\'ecules ou de moduler l'expression des g\`enes, et de quantifier les effets sur les caract\'eristiques ph\'enotypiques allant de la viabilit\'e \`a la morphologie cellulaire. Le criblage \`a haut contenu \'etend les m\'ethodologies des criblages cellulaires \`a une lecture \`a haut contenu bas\'ee sur des images, en particulier les canaux multiplex\'es de la microscopie \`a fluorescence. Les cribles bas\'es sur de multiples lignÈes cellulaires sont aptes \`a diff\'erencier les ph\'enotypes de diff\'erents sous-types d'une maladie, repr\'esentant l'h\'et\'erog\'en\'eit\'e mol\'eculaire concern\'ee dans la conception de th\'erapies m\'edicales de pr\'ecision. Ces mod\`eles biologiques plus riches sous-tendent une approche plus cibl\'ee pour le traitement de maladies mortelles telles que le cancer. Un d\'efi permanent pour le criblage \`a haut contenu est donc la synth\`ese des lectures h\'et\'erog\`enes dans les cribles ‡ multiples lign\'ees cellulaires. Parall\`element, l'\'etat de l'art \'etabli en mati\`ere d'applications d'analyse d'images et de vision par ordinateur est l'apprentissage profond. Cependant, son r\^ole dans le criblage \`a haut contenu ne fait que commencer \`a \^etre r\'ealis\'e. Cette th\`ese aborde deux probl\'ematiques de l'analyse \`a haut contenu des lign\'ees cellulaires canc\'ereuses. Les contributions sont les suivantes : (i) une d\'emonstration du potentiel d'apprentissage profond et de mod\`eles g\'en\'erateurs dans le criblage \`a haut contenu ; (ii) une solution bas\'ee sur l'apprentissage profond au probl\`eme de l'h\'et\'erog\'en\'eit\'e dans un criblage de m\'edicaments sur plusieurs lign\'ees cellulaires ; et (iii) de nouvelles applications de mod\`eles de traduction d'image \`a image comme alternative \`a la microscopie \`a fluorescence co\^uteuse actuellement n\'ecessaire pour le criblage \`a haut contenu.
 }
 
 \enabstract{
-  Verum ad istam omnem orationem brevis est defensio. Nam
-  quoad aetas M. Caeli dare potuit isti suspicioni locum, fuit
-  primum ipsius pudore, deinde etiam patris diligentia
-  disciplinaque munita. Qui ut huic virilem togam dedit≈°nihil
-  dicam hoc loco de me; tantum sit, quantum vos existimatis;
-  hoc dicam, hunc a patre continuo ad me esse deductum; nemo
-  hunc M. Caelium in illo aetatis flore vidit nisi aut cum
-  patre aut mecum aut in M. Crassi castissima domo, cum
-  artibus honestissimis erudiretur.
-
-  Et eodem impetu Domitianum praecipitem per scalas itidem
-  funibus constrinxerunt, eosque coniunctos per ampla spatia
-  civitatis acri raptavere discursu.\ iamque artuum et
-  membrorum divulsa conpage superscandentes corpora mortuorum
-  ad ultimam truncata deformitatem velut exsaturati mox
-  abiecerunt in flumen.
-
-  Erat autem diritatis eius hoc quoque indicium nec obscurum
-  nec latens, quod ludicris cruentis delectabatur et in circo
-  sex vel septem aliquotiens vetitis certaminibus pugilum
-  vicissim se concidentium perfusorumque sanguine specie ut
-  lucratus ingentia laetabatur.
-
-  Ego vero sic intellego, Patres conscripti, nos hoc tempore in
-  provinciis decernendis perpetuae pacis habere oportere rationem. Nam
-  quis hoc non sentit omnia alia esse nobis vacua ab omni periculo
-  atque etiam suspicione belli?
+Computational phenotyping is an emergent set of technologies for systematically studying the role of the genome in eliciting phenotypes, the observable characteristics of an organism and its subsystems. In particular, cell-based assays screen panels of small compound drugs or otherwise modulations of gene expression, and quantify the effects on phenotypic characteristics ranging from viability to cell morphology. High content screening extends the methodologies of cell-based screens to a high content readout based on images, in particular the multiplexed channels of fluorescence microscopy. Screens based on multiple cell lines are apt to differentiating phenotypes across different subtypes of a disease, representing the molecular heterogeneity concerned in the design of precision medicine therapies. These richer biological models underpin a more targeted approach for treating deadly diseases such as cancer. An ongoing challenge for high content screening is therefore the synthesis of the heterogeneous readouts in multi-cell-line screens. Concurrently, deep learning is the established state-of-the-art image analysis and computer vision applications. However, its role in high content screening is only beginning to be realised. This dissertation spans two problem settings in the high content analysis of cancer cell lines. The contributions are the following: (i) a demonstration of the potential for deep learning and generative models in high content screening; (ii) a deep learning-based solution to the problem of heterogeneity in a multi-cell-line drug screen; and (iii) novel applications of image-to-image translation models as an alternative to the expensive fluorescence microscopy currently required for high content screening.
 }
 
-\frkeywords{ Caesar licentia post honoratis haec adhibens urbium
-  honoratis nullum Caesar.}
-\enkeywords{ Delatus delatus nominatus
-  onere aut trahebatur quod tenus et bonorum.}
+\frkeywords{Apprentissage profond, criblage \`a haut contenu, lign\'ees cellulaires, ph\'enotypage computationnel.}
+\enkeywords{Deep learning, high content screening, cell lines, computational phenotyping.}
 
 
 \begin{document}
@@ -240,11 +187,11 @@ numbers=right,
 
 \input{Chapters/chapter1}
 \input{Chapters/chapter2}
-\part{Triple-negative breast cancer}
+\part{Computational phenotyping for multiple cell lines}
 \label{partI}
 \input{Chapters/chapter3}
 \input{Chapters/chapter4}
-\part{Chimeric antigen receptor T-cell therapy}
+\part{Fluorescence-free phenotyping}
 \label{partII}
 \input{Chapters/chapter5}
 \input{Chapters/chapter6}
@@ -261,7 +208,7 @@ numbers=right,
 \input{Appendices/appendixB}
 \input{Appendices/appendixC}
 \input{Appendices/appendixD}
-\input{Appendices/appendixE}
+%\input{Appendices/appendixE}
 
 \label{Bibliography}
 

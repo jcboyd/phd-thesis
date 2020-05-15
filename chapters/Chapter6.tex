@@ -5,15 +5,15 @@
 
 \label{Chapter6} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
 
-\textbf{Summary}: \emph{We have seen in the previous chapter the limitations of an automatically-generated training set for phenotyping cells in CAR-T experiments, whose accuracy degrades over time. In this final chapter we propose and test novel ideas for circumventing these limitations. We formulate a style transfer problem for synthesising cell line populations by unsupervised generative models. We succeed in generating realistic phase contrast images with a complete ground truth sufficient to train a state-of-the-art object detection system.}
+\textbf{Summary}: \emph{The previous chapter illustrated the limitations of an automatically-generated training set for phenotyping cells in CAR-T experiments, whose accuracy degrades over time with fluorescent quenching. This final chapter formalises and tests novel ideas for circumventing these limitations. An approach based in style transfer is proposed for synthesising cell line populations according to user-defined content by leveraging unsupervised generative models. This succeeds in generating realistic phase contrast images with a complete ground truth sufficient to train a state-of-the-art object detection system.}
 
-\textbf{R\'esum\'e}: \emph{Ce chapitre...}
+\textbf{R\'esum\'e}: \emph{Le chapitre pr\'ec\'edent a illustr\'e les limites des donn\'ees d'entra\^inement g\'en\'er\'ees automatiquement pour le ph\'enotypage des cellules dans les essais CAR-T, dont la pr\'ecision se d\'egrade avec le temps. Ce dernier chapitre formalise et teste de nouvelles id\'ees pour contourner ces limites. Une approche bas\'ee sur le transfert de style est propos\'ee pour synth\'etiser des populations de lign\'ees cellulaires selon une sp\'ecification de contenu d\'efinie par l'utilisateur en s'appuyant sur des mod\`eles g\'en\'eratifs non supervis\'es. Cela permet de g\'en\'erer des images r\'ealistes \`a contraste de phase avec une annotation compl\`ete suffisante pour entra\^iner un syst\`eme de d\'etection d'objets de pointe.}
 
 \section{Overview}
 
-In Chapter \ref{Chapter5} we compared approaches for detecting and classifying cell types from phase contrast images; directly using our object detection system, and indirectly using our fluorescence labeler (which doubles as a visualisation tool). Each approach had its shortcomings: highly clustered cells prevent the harvesting of training data for object detection, and fluorescent quenching in later experimental frames cause problems for both. In this chapter we explore an entirely different approach that aims to circumvent these problems. Our approach is based on generative models
+Chapter \ref{Chapter5} compared approaches for detecting and classifying cell types from phase contrast images: directly using an object detection system; and indirectly using a fluorescence predictor (which doubles as a visualisation tool). Each approach had its shortcomings: highly clustered cells prevent the harvesting of training data for object detection, and fluorescent quenching in later experimental frames caused problems for both. In this chapter we explore an entirely different approach that aims to circumvent these problems. This approach is based on generative models.
 
-The desired end result is a (infinite) supply of perfectly annotated synthetic images, on which we can train a state-of-the-art object detector. The intention is that such a detector will transfer seamlessly to the true data and outperform our previous. Recall that such a system was infeasible on the weakly supervised dataset we previously had for training.
+The desired end result is an endless supply of perfectly annotated synthetic images, on which we can train a state-of-the-art object detector. The intention is that such a detector will transfer seamlessly to the true data and outperform the Chapter \ref{Chapter5} approaches. In that chapter, a custom object detection system was designed to be trainable without a full annotation of the data. With a full annotation, the options for detector are broadened considerably.
 
 %By application of Bayes' theorem it can be shown for latent variables $\mathbf{z}$ and generated variables $\mathbf{x}$ that,
 %
@@ -406,66 +406,40 @@ The desired end result is a (infinite) supply of perfectly annotated synthetic i
 \section{Feasibility study: synthesising cell crops}
 \label{sec:feasibility_synthesising}
 
-To assess the feasibility of using generative models for cell population generation, we attack a simpler problem: generating crops of individual cells. We have grounds to be optimistic, given the low resolution targeted, coupled with the abundance of training data. \cite{osokin2017gans} earlier achieved impressive results synthesising fluorescence readouts of cell crops. Using the automatic cropping strategy detailed in Chapter \ref{Chapter5}, we assembled a training set of $42241$ $24 \times 24$px cell crops taken from four days of frames from a well $A01$, field $1$ (a Raji-only experiment). The natural imbalance of cell states produced a class imbalance of $32507$ living to $9734$ dead cells. Samples from the training set are given in Figure \ref{fig:reference_samples}.
+To assess the feasibility of using generative models for cell population generation, let us attack a simpler problem: generating crops of individual cells. There are grounds for optimism, given the low target resolution, coupled with the abundance of training data. \cite{osokin2017gans} earlier achieved impressive results synthesising fluorescence readouts of cell crops. Using the automatic cropping strategy detailed in Chapter \ref{Chapter5}, a training set of $42241$ $24 \times 24$px cell crops were assembled from four days of frames from the well A01, field $1$ (a Raji-only experiment). The natural imbalance of cell states produced a class imbalance of $32507$ living to $9734$ dead cells. Samples from the training set are given in Figure \ref{fig:reference_samples}.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{img/feasibility_reference_samples.pdf}
-\caption{Example cell-centered $24\times 24$px crops from our ground truth training set.}
+\caption{Example cell-centered $24\times 24$px crops from the ground truth training set.}
 \label{fig:reference_samples}
 \end{figure}
 
-We trained fully-connected and deep convolutional GANs, along with conditional versions of each (see Appendix \ref{appendix:fcgan}, \ref{appendix:dcgan} for network specifications). In training the conditional models, we balanced the number of living and dead Raji cells sampled in each mini-batch. Other than this, the training settings were held constant across our experiments: $50$ epochs; batch sizes of $120$ samples; $100$-dimensional Gaussian noise input. All models were trained with the Adam optimiser (\cite{kingma2014adam}) with learning rate $2e^{4})$, $(\beta_0, \beta_1) = (0.5, 0.999)$, and learning rate decay $1e^{-6}$, with the Jensen-Shannon objective function.
+Fully-connected and deep convolutional GANs were trained, along with conditional versions of each (see Section \ref{sec:gans_definition} for an overview of GANs and see Appendix \ref{appendix:fcgan}, \ref{appendix:dcgan} for network specifications). In training the conditional models, the number of living and dead Raji cells sampled were balanced in each mini-batch. Otherwise, the training settings were held constant across the experiments: $50$ epochs; batch sizes of $120$ samples; $100$-dimensional Gaussian noise input. All models were trained with the Adam optimiser (\cite{kingma2014adam}) with maximum learning rate $2e^{4})$, $(\beta_0, \beta_1) = (0.5, 0.999)$, and learning rate decay $1e^{-6}$, with the Jensen-Shannon objective function.
 
 \subsection{Generative adversarial networks}
 
-Generative adversarial networks (GANs) (\cite{goodfellow2014generative}) is a learning framework that trains a generator model to be capable of sampling new data from a data distribution (in particular, images), learnt (implicitly) from a training set. GANs compete with variational autoencoders (\cite{kingma2013auto}) and, more recently, autoregressive models (\cite{oord2016pixel}) for image generation. We select GANs as the principal weapon for our work in image synthesis in this chapter, given their rich literature and versatility (as we shall soon see).
-
-The GAN framework is \emph{adversarial} in that it invokes a two-player minimax \emph{game} between a pair of neural networks, a \emph{generator},
-
-\begin{equation}
-G : Z \to X,
-\end{equation}
-
-where in the simplest case $\mathbf{z} \sim Z$ is a vector of (uniform or Gaussian) noise and $\mathbf{x} \sim X$ is a synthetic data point (in particular, an image), and a \emph{discriminator},
-
-\begin{equation}
-D : X \to \{0, 1\},
-\end{equation}
-
-that is, a mapping from data point to binary value. $D$ aims to minimise its rate of failure in discerning true data from ``fake'' data sampled from the the generator, which aims to maximise the error made by the discriminator,
-
-\begin{align}
-\max_G\min_D\mathcal{L}_{GAN}(D, G) = \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})}[\log D(\mathbf{x})] + \mathbb{E}_{\mathbf{z} \sim p(\mathbf{z})}[\log(1 - D(G(\mathbf{z})))]
-\end{align}
-
-The stationary point of is a \emph{Nash equilibrium} (a saddle point) between the two objectives. \cite{goodfellow2014generative} guarantee that the distribution implicitly defined\footnote{GANs are implicit generative models, in contrast to explicit models such as VAEs, which model the probabilities directly. GANs serve as an sample-emitting oracle emulating the true distribution.} by $G$, $p_g = p_{\text{data}}$ at (global) optimality, and $D(\mathbf{x}) = p_{\text{data}}(\mathbf{x})/(p_{\text{data}}(\mathbf{x}) + p_{g}(\mathbf{x}))$ where $p_{\text{data}}$ is the true distribution of the data. GANs are trained by backpropagation with alternating gradient descent.
-
-GAN architecture design must strike a balance between a generator expressive enough to approximate the data distribution, and a discriminator powerful enough to hold it to the task. GANs are chronically afflicted with a phenomenon known as \emph{mode collapse}. Mode collapse is the condition in which the generator ``collapses'' to generating a few or even a unique output, regardless of the noise input $\mathbf{z}$. \cite{metz2016unrolled} differentiate two varieties of mode collapse: \emph{discrete mode collapse}, where the generator collapses to a subset of data modes; and the more insidious \emph{manifold collapse}, where the generator collapses to a subspace of the data distribution. They reason that mode collapse originates from the fact that in each iteration of training, the generator is impelled towards a delta function at the mode considered most ``real'' by the discriminator. The discriminator responds by lowering the probability of this mode, leading to oscillations. The ``unrolled'' GAN training approach that they advocate mitigates this tendency by informing the generator in advance of the discriminator's response to its prospective weight updates.
-
-Another promising attempt to attenuate the mode collapse problem is to replace the Jensen-Shannon divergence loss function with the Earth Mover (EM) or Wasserstein-1 distance. Such is the strategy of Wasserstein GANs (WGANs). Intuitively, the EM distance measures a distance between two distributions. We can write the EM distance as the quantity $\mathbb{E}_{x \sim \mathbb{P}_r}[f_w(x)] - \mathbb{E}_{z\sim p(z)}[f_w(g_{\theta}(z))]$ maximised by choice of $f_w$ (discriminator). The goal is then to minimise this distance through optimisation of the generator. The training algorithm is very similar to GANs. WGANs are more stable, as the substituted loss function allows the discriminator to be trained to optimality. This greatly mitigates the mode collapse problem. Nevertheless, more subtle forms of partial mode collapse remain a recurrent problem for GANs. In addition, the discriminator loss (estimated EM distance) becomes meaningful during training, interpretable as image sample quality, rendering the implementation and fine-tuning of WGANs far easier. Despite the merits of WGANs, we do not have recourse to them in this work.
-
-The simplest practicable variant of GANs incorporates $D$ and $G$ as fully-connected networks. Such models, (perhaps cherry-picked) success on generating MNIST digits in \cite{goodfellow2014generative}. Figure \ref{fig:gan_samples} shows, however, underwhelming results sampled from the trained fully-connected generator, with only rudimentary intensity levels and cellular structure of the ground truth captured. We furthermore encountered difficulties with mode collapse more frequently than when dealing with its convolutional counterparts below. This lends support to our presumption that there is little to recommend fully-connected GANs for computer vision applications.
+The simplest practicable variant of GANs incorporates $D$ and $G$ as fully-connected networks. Such models, show (perhaps cherry-picked) success in generating MNIST digits in \cite{goodfellow2014generative}, which likewise are of low resolution. Figure \ref{fig:gan_samples} shows, however, underwhelming results sampled from the trained fully-connected generator, with only rudimentary intensity levels and cellular structure of the ground truth captured. Furthermore, difficulties with mode collapse were  encountered more frequently than when dealing with the convolutional variants below. This lends support to the presumption that there is little to recommend fully-connected GANs for computer vision applications.
 
 \begin{figure}[h!]
 \centering
 \includegraphics[width=\textwidth]{img/feasibility_gan_samples.pdf}
-\caption{Sample $24\times 24$px crops from our fully-connected GAN.}
+\caption{Sample $24\times 24$px crops from a fully-connected GAN.}
 \label{fig:gan_samples}
 \end{figure}
 
 \subsection{Deep convolutional GANs}
 
-\cite{radford2015unsupervised} first succeeded in training more powerful, high-resolution GANs, by identifying a set of design principles: replacing pooling layers with strided convolutions; removing fully-connected layers (apart from the first layer of the generator); using batch normalisation after all but the last layer; using a $\tanh$ activation at the end of the generator (and ReLU everywhere else); and using LeakyReLU activations everywhere in the discriminator. Deep convolutional GANs (DC-GANs) represent a vast improvement over the MLP-based GANs trained above. Figure \ref{fig:dcgan_samples} provides samples from the convolutional generator that are qualitatively close to ground truth samples\footnote{Indeed, when swapped with true samples, they succeeded in fooling a room full of experts as to their authenticity.}, with recognisable cellular characteristics, as well as convincing neighbouring cells on the crop periphery.
+Deep convolutional GANs (DCGANs) represent a vast improvement over the MLP-based GANs trained above. Figure \ref{fig:dcgan_samples} provides samples from the convolutional generator that are qualitatively close to ground truth samples\footnote{Indeed, when swapped with true samples, they succeeded in fooling a room full of experts as to their authenticity.}, with recognisable cellular characteristics, as well as convincing neighbouring cells in the crop periphery.
 
 \begin{figure}[h!]
 \centering
 \includegraphics[width=\textwidth]{img/feasibility_dcgan_samples.pdf}
-\caption{Sample $24\times 24$px crops from our DCGAN. One may notice the generator has learned to synthesise convincing peripheral cells.}
+\caption{Sample $24\times 24$px crops from a DCGAN. One may notice the generator has learned to synthesise convincing peripheral cells.}
 \label{fig:dcgan_samples}
 \end{figure}
 
-To establish the uniqueness of these samples, we trained a k-nearest neighbour classifier (k-NN) ($k=9$) to retrieve the closest samples (in Euclidean distance) within the training data. Such a test is important, as we do not wish the network merely to memorise ground truth samples. A set of comparisons are made in Figure \ref{fig:knn_gan}, illustrating the absence of sample ``memorisation''. Note, however, that this is neither an altogether reliable nor conclusive test: a Euclidean k-NN could be easily fooled by a ``parrot'' GAN that simply scaled intensities across memorised samples, but this does not appear to be the case here.
+To establish the uniqueness of these samples,a k-nearest neighbour classifier (k-NN) ($k=9$) was trained to retrieve the closest samples (in Euclidean distance) within the training data. Such a test is important, as one does not wish the network merely to memorise ground truth samples. A set of comparisons are made in Figure \ref{fig:knn_gan}, illustrating the absence of sample ``memorisation''. Note, however, that this is neither an altogether reliable nor conclusive test: a Euclidean k-NN could easily be fooled by a ``parrot'' GAN that simply emitted memorised samples with intensities scaled, but this does not appear to be the case here.
 
 \begin{figure}[h!]
 \centering
@@ -476,65 +450,44 @@ To establish the uniqueness of these samples, we trained a k-nearest neighbour c
 
 \subsection{Conditional GANs}
 
-\cite{mirza2014conditional} present a simple extension to GANs allowing for control over the data generating process. One simply includes an additional input $\mathbf{y} \sim Y$ (for example, class information), to obtain conditional GANs (cGANs). That is, now the generator is conditional,
-
-\begin{equation}
-G : Z, Y \to X,
-\end{equation}
-
-as is the discriminator,
-
-\begin{equation}
-G : X, Y \to \{0, 1\},
-\end{equation}
-
-and the cGAN is trained against the objective,
-
-\begin{align}\mathcal{L}_{cGAN}(D, G) = \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})}[\log D(\mathbf{x} | \mathbf{y})] + \mathbb{E}_{\mathbf{z} \sim p(\mathbf{z})}[\log(1 - D(G(\mathbf{z} | \mathbf{y})))]
-\end{align}
-
-\cite{mirza2014conditional} does not offer so much as an intuition as to why conditional GANs works (seemingly the article was written in a hurry), but it can be instructive to consider. As $D$ learns to associate conditional information such as object class with the ground truth images, it will declare ``fake'' any image emitted by $G$ not conforming to the condition, no matter the quality of the image. If $G$ is to succeed, it will be forced to generate images in adherence to the condition. The outcome of successful training is therefore a generator that can, for example, synthesise an authentic-looking image of a desired class on demand.
-
-The implementation of cGANs is a straightforward modification to GANs: the conditional information is concatenated to the typical usual inputs of both $D$ and $G$ and fed to further hidden layers. A DCGAN discriminator may, however, concatenate the conditional information after its convolutional layers.
-
-We try both fully-connected and deep convolutional variants of cGANs, where we condition on class information for living and dead Raji cells. This we encode as a two-dimensional one-hot vector. Note that this represents a first attempt to control the data generation process. As with our previous results with GANs, the results with fully-connected networks are underwhelming, and we omit them here. Figure \ref{fig:cdcgan_samples}, however, displays samples from a conditional DCGAN, which are qualitatively both as convincing as our DCGAN samples, and also obey the conditional class signal, allowing us to be able to generate--on demand--$10$ samples apiece for the two classes.
+Fully-connected and deep convolutional variants of CGANs are tried, where conditioning is made on class information for living and dead Raji cells. This is encoded as a two-dimensional one-hot vector. Note that this represents a first attempt to control the data generation process. As with the previous results with GANs, the results with fully-connected networks are underwhelming, and they are omitted from the discussion. Figure \ref{fig:cdcgan_samples}, however, displays samples from a conditional DCGAN, which are qualitatively both as convincing as our DCGAN samples, and also obey the conditional class signal, enabling on-demand generation of $10$ samples apiece for the two classes.
 
 \begin{figure}[h!]
 \centering
 \includegraphics[width=\textwidth]{img/feasibility_cdcgan_samples.pdf}
-\caption{Sample $24\times 24$px crops from our cDCGAN. The top row are crops produced by conditioning for living Raji cells; the bottom are crops produced by conditioning for dead Raji cells.}
+\caption{Sample $24\times 24$px crops from a conditional DCGAN. The top row are crops produced by conditioning for living Raji cells; the bottom are crops produced by conditioning for dead Raji cells.}
 \label{fig:cdcgan_samples}
 \end{figure}
 
 \section{Style transfer for simulating populations of Raji cells}
 \label{subsec:style_transfer_application}
 
-\cite{gatys2016image} proposed a ``neural algorithm of artistic style'', an algorithm to perform \emph{style transfer} using neural networks, the synthesis of an image combining textures of one style image and another content image. Note that this involved neither the architecting nor the training of a new purpose-built neural network, rather the clever utilisation of (any) pre-trained CNN. The work combined two related ideas: content reconstruction and texture reconstruction using CNNs. \textbf{Content reconstruction} with deep networks has been explored since the very first wave of CNNs assumed their primacy. \cite{zeiler2014visualizing} showed how their earlier ``deconvolutional network'' (\cite{zeiler2010deconvolutional}) could be used to reconstruct input images from the activations inside CNNs \footnote{The work is best remembered for proposing ``ZF-Net'', a very modest modification of AlexNet, as well as using pre-trained CNNs as feature extractors for other models.). In so doing, the paper did a lot to demystify the feature hierarchies learned by deep CNNs.} \cite{simonyan2013deep} proposed a gradient-based method for visualising learned features of a pretrained network. Thus, a randomly initialised image was transformed into a structured image by incrementally adding its (regularised) gradient with respect to of a chosen neuron from the network, so as to maximised the activation of that neuron. The deepest neurons, those corresponding to semantic object classes let to the synthesis of recognisable yet ethereal impressions of those class objects. The authors argued their technique roughly generalised that of \cite{zeiler2014visualizing}. \cite{mahendran2015understanding} took idea of using neuron-to-image gradients to full image construction. This is the idea that later inspired neural style transfer: a target image is fed into a pre-trained CNN and the tensor of its activations recorded; a randomly initialised synthesis image is then fed into the network, producing its own activation; the synthesis image is updated using gradient descent so as to minimise the mean square error of its activation to that of the target. The outcome is a near-perfect reconstruction of the image. \textbf{Texture reconstruction} with CNNs was achieved by the authors of style transfer in \cite{gatys2015texture}, in a prelude to that later work. The principle is the same as \cite{mahendran2015understanding}, yet rather than to reconstruct an image for its activations directly, ones reconstructs for a statisical properties derived from those features, namely their Gram matrix. The principle is that two images sharing such features are identical from a textural perspective. The authors write,
+\cite{gatys2016image} proposed a ``neural algorithm of artistic style'', an algorithm to perform \emph{style transfer} using neural networks, the synthesis of an image combining textures of one style image and another content image. Note that this involved neither the architecting nor the training of a new purpose-built neural network, rather the clever utilisation of (any) pre-trained CNN. The work combined two related ideas: content reconstruction and texture reconstruction using CNNs. \textbf{Content reconstruction} with deep networks has been explored since the very first wave of CNNs assumed their primacy. \cite{zeiler2014visualizing} showed how their earlier ``deconvolutional network'' (\cite{zeiler2010deconvolutional}) could be used to reconstruct input images from the activations inside CNNs\footnote{The work is best remembered for proposing ``ZF-Net'', a very modest modification of AlexNet, as well as using pre-trained CNNs as feature extractors for other models.). In so doing, the paper did a lot to demystify the feature hierarchies learned by deep CNNs.}. \cite{simonyan2013deep} proposed a gradient-based method for visualising learned features of a pretrained network. Thus, a randomly initialised image was transformed into a structured image by incrementally adding its (regularised) gradient with respect to a chosen neuron from the network, so as to maximise the activation of that neuron. The deepest neurons, those corresponding to semantic object classes, led to the synthesis of recognisable yet ethereal impressions of those class objects. The authors argued their technique roughly generalised that of \cite{zeiler2014visualizing}. \cite{mahendran2015understanding} took the idea of using neuron-to-image gradients to full image construction. This is the idea that later inspired neural style transfer: a target image is fed into a pre-trained CNN and the tensor of its activations recorded; a randomly initialised synthesis image is then fed into the network, producing its own activation; the synthesis image is updated using gradient descent so as to minimise the mean square error of its activation to that of the target. The outcome may be a near-perfect reconstruction of the image. \textbf{Texture reconstruction} with CNNs was achieved by the same authors of style transfer in \cite{gatys2015texture}, in a prelude to that later work. The principle is the same as \cite{mahendran2015understanding}, yet rather than to reconstruct an image from its activations directly, one reconstructs for statisical properties derived from those features, namely their Gram matrix. The principle is that two images sharing such features are identical from a textural perspective. The authors write,
 
 \begin{quotation}
-Textures are per definition stationary, so a texture model needs to be agnostic to spatial information. A summary statistic that discards the spatial information in the feature maps is given by the correlations between the responses of different features. These feature correlations are, up to a constant of proportionality, given by the Gram matrix.
+\emph{Textures are per definition stationary, so a texture model needs to be agnostic to spatial information. A summary statistic that discards the spatial information in the feature maps is given by the correlations between the responses of different features. These feature correlations are, up to a constant of proportionality, given by the Gram matrix.}
 \end{quotation}
 
 In \cite{gatys2016image}, the ideas of style and content reconstruction were combined. Thus, one elects style $\mathbf{s}$ and content $\mathbf{c}$ reference images, and simultaneously reconstructs gradient-based reconstructions of a randomly initialised image $\mathbf{x}$,
 
 \begin{align}
-\mathcal{L}(\mathbf{s}, \mathbf{c}, \mathbf{x}) = \alpha\cdot\mathcal{L}_{\text{content}}(\mathbf{c}, \mathbf{x}) + \beta\cdot\mathcal{L}_{\text{style}}(\mathbf{s},\mathbf{x})
+\mathcal{L}(\mathbf{s}, \mathbf{c}, \mathbf{x}) = \alpha\cdot\mathcal{L}_{\text{content}}(\mathbf{c}, \mathbf{x}) + \beta\cdot\mathcal{L}_{\text{style}}(\mathbf{s},\mathbf{x}),
 \end{align}
 
 for tunable weights $\alpha$ and $\beta$ and where the content loss,
 
 \begin{align}
-\mathcal{L}_{\text{content}}(\mathbf{c}, \mathbf{x}) = \frac{1}{2}||F^{(c)}(\mathbf{c}) - F^{(c)}(\mathbf{x})||_F^2
+\mathcal{L}_{\text{content}}(\mathbf{c}, \mathbf{x}) = \frac{1}{2}||F^{(c)}(\mathbf{c}) - F^{(c)}(\mathbf{x})||_F^2,
 \end{align}
 
-for the vectorised $c$th layer (chosen by the programmer) of the pretrained network $F^{(c)} \in \mathbb{R}^{(N_lM_l \times K}$, and the style loss,
+for the vectorised $c$th layer (chosen by the programmer) of the pretrained network $F^{(c)} \in \mathbb{R}^{(N_cM_c \times K_c})$ with $N_c$, $M_c$, $K_c$ its dimensions, and the style loss,
 
 \begin{equation}
-\mathcal{L}_{\text{style}}(\mathbf{s}, \mathbf{x}) = \sum_{s \in S}\frac{1}{4N_s^2M_s^2}||G^{(s)}(\mathbf{c}) - G^{(s)}(\mathbf{x})||_F^2
+\mathcal{L}_{\text{style}}(\mathbf{s}, \mathbf{x}) = \sum_{s \in S}\frac{1}{4N_s^2M_s^2}||G^{(s)}(\mathbf{c}) - G^{(s)}(\mathbf{x})||_F^2,
 \label{eq:style_loss}
 \end{equation}
 
-where $G^{(s)} = F^{(s)}(F^{(s)})^T \in \mathbb{R}^{K \times K}$ is the Gram matrix of the matrix of vectorised feature maps, $F^{(s)}$. Note that the content reconstruction is usually performed on a single, deeper layer of the pretrained CNN, which is more invariant to style, while the style reconstruction can be performed at several shallower layers at once, to capture style at different scales. The result is a fusion of content and style in a synthesised image. An example is given in Figure \ref{fig:style_transfer}.
+where $G^{(s)} = F^{(s)}(F^{(s)})^T \in \mathbb{R}^{K \times K}$ is the Gram matrix of the matrix of vectorised feature maps $F^{(s)}$ of layer $s$. Note that the content reconstruction is usually performed on a single, deeper layer of the pretrained CNN, which is more invariant to style, while the style reconstruction can be performed at several shallower layers at once, to capture style at different scales. The result is a fusion of content and style in a synthesised image. An example is given in Figure \ref{fig:style_transfer}.
 
 \begin{figure}%
     \centering
@@ -543,37 +496,38 @@ where $G^{(s)} = F^{(s)}(F^{(s)})^T \in \mathbb{R}^{K \times K}$ is the Gram mat
     \subfloat[Content]{{\includegraphics[height=0.35\textwidth]{img/swans.jpg} }}%
     \qquad
     \subfloat[Synthesis]{{\includegraphics[height=0.35\textwidth]{img/style_transfer.png} }}
-    \caption{A neural algorithm of artistic style combines uses a pretrained CNN to combine properties from a style source image (a) and a content source image (b) to synthesise a new image combining their characteristics (c). Example taken from https://github.com/jcboyd/vgg-fun}%
+    \caption{A neural algorithm of artistic style uses a pretrained CNN to combine properties from a style source image (a) and a content source image (b) to synthesise a new image combining their characteristics (c). Example taken from https://github.com/jcboyd/vgg-fun}%
     \label{fig:style_transfer}%
 \end{figure}
 
 \subsection{Conditional dilation for tessellating cell contours}
+\label{subsec:conditional_dilation}
 
-We pursue an application of style transfer to synthesise images of cells in phase contrast images from our CAR-T dataset. We motivate this from the shortcomings of our automatic training set extraction presented in Chapter \ref{Chapter5}, which provides us with an incomplete annotation of our data, and fails, crucially, in scenarios where cells cluster profusely, such as after mitotic events. We moreover found that this translated into the degradation of performance in time of our both our fluorescence labeler and object detector. In principle, a perfectly annotated ground truth could be constructed using a style transfer procedure:
+Our objective is an application of style transfer to synthesise images of cells in phase contrast images from our CAR-T dataset. This is motivated from the shortcomings of the automatic training set extraction presented in Chapter \ref{Chapter5}, which provides an incomplete annotation of the data, and fails, crucially, in scenarios where cells cluster profusely, as in the case of strong proliferation. It was moreover found that this translated into the degradation of performance in time for both the fluorescence predictor and object detector. In principle, a perfectly annotated ground truth could be constructed using a style transfer procedure:
 
 \begin{enumerate}
-\item specify our desired content image by ``drawing'' content
+\item specify a desired content image by ``drawing'' content
 \item manually crop a region of a phase contrast image with similar content
 \item run the style transfer algorithm on the above
 \end{enumerate}
 
-Hypothetically, the outcome is a realistic-looking image of cells for which we have perfect knowledge of content, including cell position and size, hence the majority of information  required for a fully-annotated object detection dataset (we set aside the issue of class information for now), and indeed relates to the concept data simulation. The idea of using style transfer for data augmentation has been shown to work in for example \cite{zheng2019stada}.
+Hypothetically, the outcome is a realistic-looking image of cells for which one has complete knowledge of its content, including cell position and size, thus the majority of information required for a fully-annotated object detection dataset (let us set aside the issue of class information for now), and indeed relates to the concept of data simulation. The idea of using style transfer for data augmentation has been shown to work in for example \cite{zheng2019stada}.
 
 Given the simple geometric structure of cells, a good first approximation to a drawn cell is a circle. Therefore, in a space image plane $X$, the mask of an \emph{isolated} cell $k$ can be modeled as the set of points within distance $r_k$ to a non-empty set or ``site'' $P_k$,
 
 \begin{equation}
-R_k = \{x \in X | d(x, P_k) \leq r_k\}
+R_k = \{x \in X | d(x, P_k) \leq r_k\},
 \label{eq:region}
 \end{equation}
 
-where the distance $d(x, P_k) = \inf\{d(x, p) | p \in P_k\}$, that is, the shortest distance to any point in the site. When $P_k$ is a singleton set, the region becomes a circle. Otherwise, we may define the site $P_k$ in any way we like (for example, a line or eroded mask) to model random, anisotropic variations in cell shape. The radius,
+where the distance $d(x, P_k) = \inf\{d(x, p) | p \in P_k\}$, that is, the shortest distance to any point in the site. When $P_k$ is a singleton set, the region becomes a circle. Otherwise, one may define the site $P_k$ in any way desired (for example, a line or eroded mask) to model random, anisotropic variations in cell shape. The radius,
 
 \begin{align}
-r_k \sim \mathcal{N}(\mu_i, \sigma_i)
+r_k \sim \mathcal{N}(\mu_i, \sigma_i),
 \label{eq:radius_dist}
 \end{align}
 
-can be sampled from an estimation of the radius distribution for class $i$. Once again, we are avoiding the complication of prescribing classes to cells for the present.
+can be sampled from an estimation of the radius distribution for class $i$. Once again, let us avoid the complication of prescribing classes to cells for the present.
 
 \begin{figure}%
     \centering
@@ -582,21 +536,21 @@ can be sampled from an estimation of the radius distribution for class $i$. Once
     \subfloat[\label{fig:cell_tessellation}]{{\includegraphics[width=0.25\textwidth]{img/tessellating_cells.png} }}
     \qquad
     \subfloat[]{{\includegraphics[width=0.25\textwidth]{img/conditional_dilation.png} }}
-    \caption{Example of Voronoi tessellation with six sites (blue points) and corresponding regions (yellow lines) (generated in \texttt{scipy} (\cite{2020SciPy-NMeth}) (a). Neighbouring cells exhibit a tessellating effect at the border (b). A conditional dilation algorithm can model the bordering when it comes to synthesising content images for style transfer.}%
+    \caption{Example of Voronoi tessellation with six sites (blue points) and corresponding regions (yellow lines) (generated in \texttt{scipy} (\cite{2020SciPy-NMeth}) (a). Neighbouring cells exhibit a tessellating effect at the border (b). A conditional dilation algorithm can model this bordering effect when it comes to synthesising content images for style transfer.}%
     \label{fig:conditional_dilation}%
 \end{figure}
 
 Though isolated cells are highly circular, closely neighbouring cells manifest a shared, flattened contour (see Figure \ref{fig:cell_tessellation}). Previously, \cite{bock2010generalized} have modeled the border forces of neighbouring cells as Voronoi-tessellating circles. A Voronoi tessellation can be defined as $K$ regions of the form,
 
 \begin{equation}
-S_k = \Big\{x \in X | d(x, P_k) \leq d(x, P_j) \forall j \neq k \Big\}
+S_k = \Big\{x \in X | d(x, P_k) \leq d(x, P_j) \forall j \neq k \Big\}.
 \label{eq:voronoi}
 \end{equation}
 
-The $K$ regions constitute a partition of the space $X$, where points are assigned to the nearest site. An example is shown in Figure \ref{fig:voronoi} where we invoke Euclidean distance for a set of six singleton sites. The borders between regions are lines perpendicular to the line joining the site centers. We propose to model our cells as the intersection of \ref{eq:region} and \ref{eq:voronoi},
+The $K$ regions constitute a partition of the space $X$, where points are assigned to the nearest site. An example is shown in Figure \ref{fig:voronoi} where a Euclidean distance is invoked for a set of six singleton sites. The borders between regions are lines perpendicular to the line joining the site centers. It is therefore proposed to model cells as the intersection of \ref{eq:region} and \ref{eq:voronoi},
 
 \begin{equation}
-T_k = \Big\{x \in X | d(x, P_k) \leq r_k \land d(x, P_k) \leq d(x, P_j) \  \forall j \neq k \Big\}
+T_k = \Big\{x \in X | d(x, P_k) \leq r_k \land d(x, P_k) \leq d(x, P_j) \  \forall j \neq k \Big\}.
 \label{eq:conditional_dilation}
 \end{equation}
 
@@ -605,7 +559,7 @@ T_k = \Big\{x \in X | d(x, P_k) \leq r_k \land d(x, P_k) \leq d(x, P_j) \  \fora
 %&= \Big\{x \in X | d(x, P_k) \leq r_k \land d(x, P_k) \leq d(x, P_j) \forall j \neq k \Big\}
 %\end{align}
 
-To compute the $T_k$, we design an algorithm for \emph{conditional dilation}. The principle is to select the sites (cell centres) and to grow outwards until either a maximum distance from the source is reached, or an object border is encountered. The procedure is shown in Algorithm \label{alg:ConditionalDilation}. This resembles an implementation of the watershed algorithm, albeit with all seeds flooded from the same height, implemented as a priority of $0$. The dilation of sites is scheduled according to a priority queue, for which priority is assigned as the distance from the source. Thus, dilation propagates from the sites synchronously. The priority queue is implemented as a \emph{heap}, as it can push and pop in $\mathcal{O}(\log N)$ time.
+To compute the $T_k$, an algorithm for \emph{conditional dilation} is designed and shown in Algorithm \ref{alg:ConditionalDilation}. The principle is to select the sites (cell centres) and to grow outwards until either a maximum distance from the source is reached, or an object border is encountered. This resembles an implementation of the watershed algorithm, albeit with all seeds flooded from the same height (implemented as a priority of $0$). The dilation of sites is scheduled according to a priority queue, for which priority is assigned as the distance from the source\footnote{The \textsc{Dist} function for calculating minimum distances to the site sets implements a lookup table based on a pre-computed distance map.}. Thus, dilation propagates from the sites synchronously. The priority queue is implemented as a \emph{heap}, as it can push and pop in $\mathcal{O}(\log N)$ time.
 
 \begin{algorithm}
 \caption{Dilates labeled image SiteImage until distance from source exceeds Radii.} \label{alg:ConditionalDilation}
@@ -642,7 +596,7 @@ To compute the $T_k$, we design an algorithm for \emph{conditional dilation}. Th
 \end{algorithmic}
 \end{algorithm}
 
-Applying this to drawing cell population content images, the space $X$ becomes an image ``canvas'', that is, a two-dimensional array of numbers initialised to zero to indicate background. Sites are allocated as connected components (perhaps just points) of non-zero, foreground pixels. The canvas with its allocated sites and corresponding dilation radii are inputs to the \textsc{ConditionalDilation} algorithm. This works well in practice as long as the sites are carefully selected. For the time being, sites are chosen uniformly at random\footnote{One could imagine using a dynamic distribution to simulate cell clustering.}, however sites must be chosen outside all other regions. Provided the canvas is large enough relative to the cells, and the cell number, there is a large space of feasible allocations of sites. For efficiency, we keep a record of the vacant coordinates in the drawing canvas, from which we subtract the coordinates of the anticipated region of each allocated site on-the-fly. If we naively allocate sites in arbitrary order, we risk the scenario by which a larger cell is allocated in the vicinity of a smaller one, placing the center of the smaller cell within the region of the larger. A neat solution is to simply allocate the sites in descending order of radius. This procedure is described in Algorithm \ref{alg:AllocateSites}.
+Applying this for the purpose of drawing cell population content images, the space $X$ becomes an image ``canvas'', that is, a two-dimensional array of numbers initialised to zero to indicate background. Sites are allocated as connected components (perhaps just points) of non-zero, foreground pixels. The canvas with its allocated sites and corresponding dilation radii are inputs to the \textsc{ConditionalDilation} algorithm. This works well in practice as long as the sites are carefully selected. For the time being, sites are chosen uniformly at random (without replacement)\footnote{One could imagine using a dynamically-updated distribution to simulate cell clustering.}, however sites must be chosen outside all other regions. Provided the canvas is large enough relative to the cells and the cell number, there is a large space of feasible allocations of sites. For efficiency, a record is kept of the vacant coordinates in the drawing canvas, from which is subtracted the coordinates of the anticipated region of each allocated site on-the-fly. If sites are naively allocated in arbitrary order, there is the risk of the scenario in which a larger cell is allocated in the vicinity of a smaller one, placing the center of the smaller cell within the region of the larger. A neat solution is to simply allocate the sites in descending order of radius. This procedure is described in Algorithm \ref{alg:AllocateSites}.
 
 \begin{algorithm}
 \caption{Allocates sites for input to \textsc{ConditionalDilation} algorithm. VacantCoords are a list of $(x, y)$ coordinates available for allocation (initially a full image), and Radii are the presampled radii for drawing cells.} \label{alg:AllocateSites}
@@ -663,14 +617,14 @@ Applying this to drawing cell population content images, the space $X$ becomes a
 \end{algorithmic}
 \end{algorithm}
 
-The outcome of the \textsc{ConditionalDilation} algorithm is a content image in the form of a labeled mask. While masks are a natural choice for cell content markers, an alternative that we find more useful is the cell contour defined as,
+The outcome of the \textsc{ConditionalDilation} algorithm is a content image in the form of a labeled mask. While masks are a natural choice for cell content markers, an alternative that is found to be more useful is the cell contour defined as,
 
 \begin{equation}
-C_k = T_k - T_k \oplus B_D
+C_k = T_k - T_k \oplus B_D,
 \label{eq:contour}
 \end{equation}
 
-where $\oplus$ represents a morphological dilation or maximum filter, $M$ is the object mask, and $B_D$ is a (for example, disk-shaped) structuring element. The full procedure for generating content images is illustrated in Figure \ref{fig:conditional_dilation_process}.
+where $\oplus$ represents a morphological dilation or maximum filter, $T_k$ is the object mask, and $B_D$ is a (for example, disk-shaped) structuring element. The full procedure for generating content images is illustrated in Figure \ref{fig:conditional_dilation_process}.
 
 \begin{figure}%
     \centering
@@ -685,9 +639,7 @@ where $\oplus$ represents a morphological dilation or maximum filter, $M$ is the
 
 \subsubsection{Results}
 
-In Figure \ref{fig:style_transfer_cells} we show a first result with style transfer. The contours of cells are generated according to Equation \ref{eq:radius_dist}, which we can estimate from our library of pre-cropped cells in Chapter \ref{Chapter5}. The number of cells is chosen to match the chosen style image, and cell are placed uniformly randomly on the zeroed background plane. Here we see that the transfer succeeds--the background and foreground textures have been suitably apportioned to the objects prescribed by the content image. Various artifacts exist, of course, but individual cells appear correctly rendered, and the main fault is the global arrangement of the cell population lacking sense (recall we have placed objects uniformly randomly).
-
-\begin{figure}[hb]%
+\begin{figure}[h]%
     \centering
     \subfloat[Style]{{\includegraphics[width=0.25\textwidth]{img/style_style_img.png}}}%
     \qquad
@@ -698,7 +650,7 @@ In Figure \ref{fig:style_transfer_cells} we show a first result with style trans
     \label{fig:style_transfer_cells}
 \end{figure}
 
-Note that the low-resolution and simple geometric structure of the cells puts us at a natural advantage. It is hard to imagine this approach working very well for anything but simple geometric shapes. There are, nevertheless, limitations to this approach. We see in Figure \ref{fig:style_transfer_cells_many} a larger population of cells with a greater degree of failure. In general, we observe a tension between the content specification and the chosen style crop. Note that Equation \ref{eq:style_loss} aims to ensure the same co-occurring neural activations invoked by the style target are invoked by the synthetic image also, albeit the global arrangement is arbitrary due to stationarity of the Gram matrix. The algorithm preferences applying these textures in the vicinity of recognisable contours, which is why we can steer the synthesis reasonably well. Furthermore, we find the cell geometry is flexible: when the disk contours are replaced with diamonds, the algorithm still performs well. Yet, we find that it is crucial to approximately match the size and number of cells between the style and content images to obtain a good coverage of texture. Indeed, the style image appears to provide a certain ``budget'' that if underspent will be apportioned arbitrarily (such as to the background), and if overspent will mean some objects end up untextured.
+Figure \ref{fig:style_transfer_cells} shows a first result with style transfer. The contours of cells are generated according to Equation \ref{eq:radius_dist}, which can be estimated from a library of pre-cropped cells from Chapter \ref{Chapter5}. The number of cells is chosen to match the chosen style image, and cells are placed uniformly randomly on the zeroed background plane. Here we see that the transfer succeeds--the background and foreground textures have been suitably apportioned to the objects prescribed by the content image. Various artifacts exist, of course, but individual cells appear correctly rendered, and the main fault is the global arrangement of the cell population lacking sense (recall objects have been placed uniformly randomly).
 
 \begin{figure}%
     \centering
@@ -711,8 +663,9 @@ Note that the low-resolution and simple geometric structure of the cells puts us
     \label{fig:style_transfer_cells_many}%
 \end{figure}
 
-Though as a proof of concept this approach is successful and yields various insights, the pre-trained network, with all its particularities, does not give us the necessary control for bootstrapping a robust ground truth. In addition, the approach entails the manual curation of a suitable style reference image. Finally, the generation is slow: one must backprop a large neural network (although \cite{johnson2016perceptual} find ways of greatly improving the run time). To overcome these difficulties, in Section \ref{sec:cycle_gans} we reformulate the problem as a learning problem of image translation.
+Note that the low-resolution and simple geometric structure of the cells are naturally advantageous. Of course, if more complicated objects were to be modeled, the contour simulator need likewise be more sophisticated. There are, nevertheless, limitations to this approach. We see in Figure \ref{fig:style_transfer_cells_many} a larger population of cells with a greater degree of failure. In general, a tension is observed between the content specification and the chosen style crop. Note that Equation \ref{eq:style_loss} aims to ensure the same co-occurring neural activations invoked by the style target are invoked by the synthetic image also, albeit the global arrangement is arbitrary due to stationarity of the Gram matrix. The algorithm preferences applying these textures in the vicinity of recognisable contours, which is why one can steer the synthesis reasonably well. Furthermore, it is found that the cell geometry is flexible: when the disk contours are replaced with diamonds, for example, the algorithm still performs well. Yet, it is crucial to approximately match the size and number of cells between the style and content images to obtain a good distribution of texture. Indeed, the style image appears to provide a certain ``budget'' that if underspent will be apportioned arbitrarily (such as to the background), and if overspent will mean some objects end up untextured.
 
+Though as a proof of concept this approach is successful and yields various insights, the pre-trained network, with all its particularities, does not offer the necessary control for bootstrapping a robust ground truth. In addition, the approach entails the manual curation of a suitable style reference image. What is more, the generation is slow: one must backprop a large neural network (although \cite{johnson2016perceptual} find ways of greatly improving the run time). To overcome these difficulties, in Section \ref{sec:cycle_gans} let us reformulate the problem as a learning problem of unsupervised image translation.
 
 %\begin{algorithm}[H]
 %\SetAlgoLined
@@ -802,29 +755,30 @@ Though as a proof of concept this approach is successful and yields various insi
 \section{CycleGANs for cell population synthesis}
 \label{sec:cycle_gans}
 
-CycleGANs (\cite{isola2017image}) extend the \texttt{pix2pix} framework (see Section \ref{subsec:image_to_image}) to the \emph{unpaired} image-to-image translation setting, that is, translating between two (necessarily similar) image domains in a fully unsupervised way. Though the underlying neural network architectures remain virtually unchanged, the framework is quite different. CycleGANs introduce an additional pair of generator and discriminator. Now, one generator learns the mapping $G : X \to Y$ while the other learns $F : Y \to X$. The respective discriminators train these generators adversarially in the usual way. However, at the same time, there are cycle consistency losses, ensuring $F(G(X)) \approx X$ (forward cycle consistency) and $G(F(Y)) \approx Y$ (backward cycle consistency). We write,
+CycleGANs (\cite{isola2017image}) extend the \texttt{pix2pix} framework (see Section \ref{subsec:image_to_image}) to the \emph{unpaired} image-to-image translation setting, that is, translating between two (necessarily similar) image domains in a fully unsupervised way. Though the underlying neural network architectures remain virtually unchanged, the framework is quite different. CycleGANs introduce an additional pair of generator and discriminator. Now, one generator learns the mapping $G : X \to Y$ while the other learns $F : Y \to X$. The respective discriminators train these generators adversarially in the usual way. However, at the same time, there are cycle consistency losses ensuring $F(G(X)) \approx X$ (forward cycle consistency) and $G(F(Y)) \approx Y$ (backward cycle consistency). The cycle consistency loss,
 
 \begin{equation}
 \mathcal{L}_{CYC}(G, F) = \mathbb{E}_{x \sim p_{data}(x)}[||F(G(x)) - x||_1] + \mathbb{E}_{y \sim p_{data}(y)}[||G(F(y)) - y||_1],
+\label{eq:cycle_consistency}
 \end{equation}
 
-that is, the expected $l_1$ error upon reconstructing real images via the stacked generators. The cycle consistency losses are combined with the usual GAN losses for each translation, 
+that is, the expected $l_1$ error upon reconstructing real images via the stacked generators. Equation \ref{eq:cycle_consistency} is combined with the usual GAN losses for each direction of translation to give the CycleGAN objective,
 
 \begin{equation}
-\max_{G, F}\min_{D_X, D_Y} \mathcal{L}_{CG} = \mathcal{L}_{GAN}(D_Y, G, X, Y) + \mathcal{L}_{GAN}(D_X, F, Y, X) + \lambda\mathcal{L}_{CYC}(G, F)
+\max_{G, F}\min_{D_X, D_Y} \mathcal{L}_{CG} = \mathcal{L}_{GAN}(D_Y, G, X, Y) + \mathcal{L}_{GAN}(D_X, F, Y, X) + \lambda\mathcal{L}_{CYC}(G, F).
 \label{eq:cycle_gan}
 \end{equation}
 
-Thus, it must be that such a consistent translation can be discovered between the domains. If the domains are similar, this works surprisingly well in practice. Note that unlike \texttt{pix2pix} (paired image translation) CycleGANs are no longer conditional in that the discriminators no longer have access to the source image. The generators are still conditioned on their input image, however, instead of the noise vector in a vanilla GAN. A successfully trained CycleGAN can learn to perform a (bidirectional) style transfer between, for example, photographs and paintings, and maps to satellite imagery. In contrast with \emph{A Neural Algorithm of Artistic Style}, however, it requires a full training corpus to learn from. At test time, the style transfer is performed in a single forward pass of the generator. Moreover, empirical results suggest the outcomes are superior (\cite{isola2017image}). This is unsurprising, as the CycleGAN is optimised to perform style transfer directly, rather than a clever utilisation of a pretrained network. the results are not as impressive as \texttt{pix2pix}, which they affirm to be an upper bound on performance. However, the CycleGAN is still trained on a surprisingly small number of images, despite being a very deep architecture. Even more recently, \emph{RecycleGANs} (\cite{bansal2018recycle}) achieve the astonishing feat of unpaired video-to-video translation. These build on the CycleGAN framework, introducing ``recurrent temporal predictor'' networks, and replace the cycle consistency losses, with a similarly defined ``recycle loss''. Although we are indeed working with video data, Recycle-GANs seem excessive for the problem at hand; CycleGANs should be sufficient.
+Thus, it must be that such a consistent translation can be discovered between the domains. If the domains are similar, this works surprisingly well in practice. Note that unlike \texttt{pix2pix} (paired image translation) CycleGANs are no longer conditional in that the discriminators no longer have access to the source image. The generators are still conditioned on their input image, however, instead of the noise vector of a vanilla GAN. A successfully trained CycleGAN can learn to perform a (bidirectional) style transfer between, for example, photographs and paintings, and maps to satellite imagery. In contrast with ``a neural algorithm of artistic style'' (Section \ref{subsec:style_transfer_application}), however, it requires a full training corpus to learn from. At test time, the style transfer is performed in a single forward pass of the generator. Moreover, empirical results suggest the outcomes are superior (\cite{isola2017image}). This is unsurprising, as the CycleGAN is optimised to perform style transfer directly, rather than by a clever utilisation of a pretrained network. The results on paired image translation are usually not as impressive as \texttt{pix2pix}, which they assert to be an upper bound on performance. However, CycleGANs are still trained on a surprisingly small number of images, despite being very deep architectures. Even more recently, \emph{RecycleGANs} (\cite{bansal2018recycle}) achieve the astonishing feat of unpaired video-to-video retargeting. These build on the CycleGAN framework, introducing ``recurrent temporal predictor'' networks, and replace the cycle consistency losses, with a similarly defined ``recycle loss''. Although the CAR-T dataset are indeed a form of video data, Recycle-GANs seem excessive for the problem at hand and CycleGANs should be sufficient.
 
 \subsection{First results with CycleGANs}
 \label{subsec:first_results_cyclegans}
 
-We therefore propose to use CycleGANs as an improvement for the style transfer algorithm in Section \ref{subsec:style_transfer_application}. We model the domain $X$ as the content domain, where while training the CycleGAN, the content specifications are randomly generated according to the rule set we inject. The domain $Y$ is again the style domain of phase contrast images, however now we can freely sample style image patches at random, that is, without the manual discretion involved in Section \ref{subsec:style_transfer_application}. The idea of synthesising a training set with image-to-image translation models has numerous precedents in recent times, including with \texttt{pix2pix} for object segmentation (\cite{hollandi2019deep}) and CycleGANs for both segmentation and object detection (\cite{fu2018three}, \cite{ihle2019unsupervised}).
+CycleGANs are therefore proposed as an improvement for the style transfer algorithm in Section \ref{subsec:style_transfer_application}. The domain $X$ is modeled as the content domain, where while training the CycleGAN, the content specifications are randomly generated according to Section \ref{subsec:conditional_dilation}. The domain $Y$ is again the style domain of phase contrast images, however now the style image patches may be freely sampled at random, that is, without the manual discretion involved in Section \ref{subsec:style_transfer_application}. The idea of synthesising a training set with image-to-image translation models has some very recent precedents including with \texttt{pix2pix} for object segmentation (\cite{hollandi2019deep}) and CycleGANs for segmentation (\cite{fu2018three}.
 
-We train CycleGANs to map between synthetic cell drawings and authentic phase contrast crops. We follow the alternating fashion of GAN training: the two discriminators are trained on a single batch, then the two generators. Our batch size is limited to a single image as in the related networks in Section \ref{subsec:image_to_image}, and, as in Section \ref{sec:feasibility_synthesising}, we use the Adam optimiser with maximium learning rate $2e^{4})$ and $(\beta_0, \beta_1) = (0.5, 0.999)$. The generator and discriminator closely resemble the FNet and PatchGAN of Section \ref{subsec:image_to_image}, however, to decrease training time and avoid memory concerns, in practice we halve the number of filters in each generator and decreased the depth of the network. In addition, the batch normalisation layers are replaced by the instance normalisation layers advocated by \cite{isola2017image} (and first proposed by \cite{krizhevsky2012imagenet}).
+CycleGANs are therefore trained to map between synthetic cell drawings and authentic phase contrast crops. The alternating fashion of GAN training is followed: the two discriminators are trained on a single batch, then the two generators. The batch size is limited to a single image as in the related networks of Section \ref{subsec:image_to_image}, and, as in Section \ref{sec:feasibility_synthesising}, the Adam optimiser is used with maximium learning rate $2e^{4})$ and $(\beta_0, \beta_1) = (0.5, 0.999)$. The generator and discriminator closely resemble the FNet and PatchGAN of Section \ref{subsec:image_to_image}. However, to decrease training time and avoid memory concerns, in practice the number of filters are halved in each generator and their depth is decreased. In addition, the batch normalisation layers are replaced by the instance normalisation layers advocated by \cite{isola2017image} (and first proposed by \cite{krizhevsky2012imagenet}).
 
-First results with this setup are given in Figure \ref{fig:first_results_cycle_gans}. The results come from the content-to-style generator $G$. Note that the other three networks of the CycleGAN have no immediate value for our application at present, and are effectively discarded. We deem these results to be highly satisfactory, with the system adhering closely to the specification given in our content drawings, while producing realistic textures for the cells. 
+First results with this setup are given in Figure \ref{fig:first_results_cycle_gans}. The results come from feeding a synthesised content image to content-to-style generator $G$ and reconstructing with the style-to-content generator $F$. We may deem these results to be highly satisfactory, with the system adhering closely to the specification given in our content drawings, while producing realistic textures for the cells over a broad range of cell population sizes.
 
 \begin{figure}%
     \centering
@@ -834,32 +788,32 @@ First results with this setup are given in Figure \ref{fig:first_results_cycle_g
     \qquad
     \subfloat[reconstructed]{{\includegraphics[width=0.25\textwidth]{img/cg_recon_b_25.png} }}
     \qquad
-    \subfloat[content]{{\includegraphics[width=0.25\textwidth]{img/cg_content_30.png} }}%
-    \qquad
-    \subfloat[synthesised]{{\includegraphics[width=0.25\textwidth]{img/cg_fake_a_30.png} }}%
-    \qquad
-    \subfloat[reconstructed]{{\includegraphics[width=0.25\textwidth]{img/cg_recon_b_30.png} }}
-    \qquad
-    \subfloat[content]{{\includegraphics[width=0.25\textwidth]{img/cg_content_45.png} }}%
-    \qquad
-    \subfloat[synthesised]{{\includegraphics[width=0.25\textwidth]{img/cg_fake_a_45.png} }}%
-    \qquad
-    \subfloat[reconstructed]{{\includegraphics[width=0.25\textwidth]{img/cg_recon_b_45.png} }}
-    \qquad
     \subfloat[content]{{\includegraphics[width=0.25\textwidth]{img/cg_content_50.png} }}%
     \qquad
     \subfloat[synthesised]{{\includegraphics[width=0.25\textwidth]{img/cg_fake_a_50.png} }}%
     \qquad
     \subfloat[reconstructed]{{\includegraphics[width=0.25\textwidth]{img/cg_recon_b_50.png} }}
     \qquad
-    \caption{Examples of CycleGAN generated images. Columns organised with content specification input image $X$ (left), $G(X)$ generated image (center) and reconstruction $F(G(X))$ (right).}%
+    \subfloat[content]{{\includegraphics[width=0.25\textwidth]{img/cg_content_100.png} }}%
+    \qquad
+    \subfloat[synthesised]{{\includegraphics[width=0.25\textwidth]{img/cg_fake_a_100.png} }}%
+    \qquad
+    \subfloat[reconstructed]{{\includegraphics[width=0.25\textwidth]{img/cg_recon_b_100.png} }}
+    \qquad
+    \subfloat[content]{{\includegraphics[width=0.25\textwidth]{img/cg_content_150.png} }}%
+    \qquad
+    \subfloat[synthesised]{{\includegraphics[width=0.25\textwidth]{img/cg_fake_a_150.png} }}%
+    \qquad
+    \subfloat[reconstructed]{{\includegraphics[width=0.25\textwidth]{img/cg_recon_b_150.png} }}
+    \qquad
+    \caption{Examples of CycleGAN generated images. Columns organised with content specification input image $X$ (left), $G(X)$ generated image (center) and reconstruction $F(G(X))$ (right). The number of cells are increased over the rows: $25$, $50$, $100$, and $150$.}%
     \label{fig:first_results_cycle_gans}%
 \end{figure}
 
 \section{Fine-tuning a state-of-the art object detection system}
 \label{sec:fine_tuning_rcnn}
 
-With the content-to-style generator from Section \ref{subsec:first_results_cyclegans} acting as an ``oracle'' for perfectly-annotated training data, we can proceed to train a state-of-the-art object detection system, such as that which eluded us in Chapter \ref{Chapter5}. We choose Faster R-CNN (\cite{girshick2015fast}) for this task. A full discussion of the RCNN series of object detectors is available in Chapter \ref{Chapter2}. We take the Faster RCNN implementation available in the PyTorch framework (\cite{paszke2017automatic}). This has been pretrained on the COCO object detection dataset \cite{lin2014microsoft}. A simple fine-tuning procedure is to replace the classification and bounding box regression ``heads'' of the network, that is, leaving the backbone and region proposal network untouched, and to continue gradient descent on the new data with a lowered learning rate. This we do, with a learning rate of $10^{-4}$, training with SGD with momentum. Training mini-batches are formed with $8$ synthetic images. The (perfect) bounding box annotation (and, in principle, object class information) is determined by the drawing procedure of the synthetic image.
+With the content-to-style generator from Section \ref{subsec:first_results_cyclegans} acting as an ``oracle'' for perfectly-annotated training data, a state-of-the-art object detection system may be trained, such as that which remained elusive in Chapter \ref{Chapter5}. The Faster R-CNN model (\cite{girshick2015fast}) is chosen for this task. A full discussion of the RCNN series of object detectors is available in Section \ref{subsec:rcnn_definition}. The Faster RCNN implementation available in the PyTorch framework (\cite{paszke2017automatic}) is used. This has been pretrained on the COCO object detection dataset \cite{lin2014microsoft}. A simple fine-tuning procedure is to replace the classification and bounding box regression ``heads'' of the network, that is, leaving the backbone and region proposal network untouched, and to continue gradient descent on the new data with a lowered learning rate. This is done, with a learning rate of $10^{-4}$, training with SGD with momentum. Mini-batches are formed for training with $8$ synthetic images. The (perfect) bounding box annotation (and, in principle, object class information) is determined by the drawing procedure of the synthetic image.
 
 \begin{figure}[h]%
     \centering
@@ -870,43 +824,43 @@ With the content-to-style generator from Section \ref{subsec:first_results_cycle
     \label{fig:faster_rcnn}%
 \end{figure}
 
-The outcome of training is a detection system capable of detecting cells (but not classification, for now). We compare Faster R-CNN trained on our synthetic images with the incomplete annotations arising from the automatic pipeline proposed in Section \ref{subsec:data}. Recall, our argument for pursuing a custom detector in Chapter \ref{Chapter5} was that such a \emph{weakly supervised} dataset would be insufficient to train a state-of-the-art system like Faster R-CNN. We see in Figure \ref{fig:faster_rcnn} evidence to support this intuition, where we compare the performance of the fine-tuned R-CNN on an authentic test image, when fine-tuned first on a weakly supervised dataset, then on our CycleGAN-generated images.
+The outcome of this fine-tuning is a detection system capable of detecting cells (but not classification, for now). A comparison is made between Faster R-CNN trained on the CycleGAN synthetic images against the incomplete annotations arising from the automatic pipeline proposed in Section \ref{subsec:object_detection_data}. Recall, the argument for pursuing a custom detector in Chapter \ref{Chapter5} was that such a \emph{weakly supervised} dataset would be insufficient for training a state-of-the-art system like Faster R-CNN. We see in Figure \ref{fig:faster_rcnn} evidence to support this intuition, in which are compared the outcomes of the fine-tuned R-CNN on an authentic test image, when fine-tuned first on a weakly supervised dataset, then on the CycleGAN-generated images.
 
 \section{Perspectives on synthesising a full object detection dataset}
+\label{sec:full_object_detection_dataset}
+In Section \ref{sec:fine_tuning_rcnn} the viability of training a state-of-the art object detection system on fully-annotated synthetic images has been shown. The missing component is to incorporate classification into the framework. In principle, the R-CNN detector is designed to learn this task simultaneously with the object detection, however, the CycleGANs, being a fully unsupervised model have no means for injecting this information into the data-generating process. Clearly, one could use the R-CNN as a region proposal algorithm and classify regions with a separately trained classifier (such as in Section \ref{subsec:training}). Preliminary results with this approach demonstrate this is a viable approach. However, the R-CNN system should be altogether more powerful if trained on a full annotation of object class and location. One could, alternatively, attempt to incorporate the weakly annotated ground truth (as utilised in Section \ref{sec:fine_tuning_rcnn}) into the R-CNN fine-tuning in an attempt to teach it about Raji cell classes.
 
-We have shown in Section \ref{sec:fine_tuning_rcnn} the viability of training a state-of-the art object detection system on fully-annotated synthetic images. The missing component is to incorporate classification into the framework. In principle, the R-CNN detector can be trained to do this simultaneously, however, our CycleGANs, being a fully unsupervised model have no means for injecting this information. Clearly, we could use the R-CNN as a region proposal algorithm and classify regions with a separately trained classifier (such as in Section \ref{subsec:training}). Our preliminary attempts with this approach demonstrate we could never be worse off. However, the R-CNN system should be altogether more powerful if trained on a full annotation of object class and location. We could, alternatively, attempt to incorporate the weakly annotated ground truth (as utilised in Section \ref{sec:fine_tuning_rcnn}) into the R-CNN fine-tuning to attempt to teach it about Raji cell classes. This has its own drawbacks, however, as this weakly supervised ground truth has already been shown to be problematic, and would entail a careful configuration of a large neural network (R-CNN).
-
-In the following, we instead conceptualise an extension to our CycleGAN system that would be theoretically capable of providing both a perfect annotation encompassing both object localisation and class information. This extension takes the form of an additional discriminator for the content-to-style generator, that, in contrast to the PatchGAN discriminator, discriminates on regions of interest. Such a region of interest discriminator, $D_{roi}$ compares fake cells localised by bounding boxes inside generated images with a pre-cropped ``library'' of real cells. The library can include class information for the individual crops, which can be combined in the fashion of a conditional GAN. The content image would also have to encode class information. Thus, the $D_{roi}$ discriminator could provide a mechanism to enforce class information at the resolution of an RoI. For an implementation of this idea, see Appendix \ref{sec:training_roi_classifier}.
+In the following, however, an extension to the CycleGAN system above is conceptualised that would be theoretically capable of providing both a complete annotation of synthesised images, encompassing both object localisation and class annotations. This extension takes the form of an additional discriminator for the content-to-style generator, that, in contrast to the PatchGAN discriminator, discriminates on regions of interest. Such a \emph{region of interest discriminator}, $D_{roi}$ compares fake cells localised by bounding boxes inside generated images with a pre-cropped ``library'' of real cells. The library can include class information for the individual crops, which can be combined in the fashion of a conditional GAN. The content image would also have to encode class information in some way (for example, by intensity or a one-hot encoding). Thus, the $D_{roi}$ discriminator could provide a mechanism to enforce class information at the resolution of specific regions of interest. For a preliminary implementation of this idea, see Appendix \ref{sec:training_roi_classifier}.
 
 \subsection{Region of interest discrimination}
 
-We define an auxiliary discriminator for image-to-image GANs,
+Let us define an auxiliary discriminator for image-to-image GANs,
 
 \begin{equation}
-d_{roi} : X, B \to \{0, 1\}
+d_{roi} : X, B \to \{0, 1\},
 \end{equation}
 
 for image domain $X$ and bounding box domain $B$, with $d_{roi}(\mathbf{x}, b) = d(\rho(f(\mathbf{x}), b))$, for input image $\mathbf{x} \sim X$, bounding box $b \sim B$, and where we conceive of a neural network comprising of feature extraction layers $f$, classification layers $d$, and separated by RoIPool layer $\rho$. A RoIPool layer\footnote{See also RoIAlign layer (\cite{he2017mask})} (\cite{girshick2015fast}) generalises the MaxPooling layer and quantises regions of interest (RoIs) into a fixed size,
 
 \begin{equation}
-\rho : X, B \to \mathbf{y}
+\rho : X, B \to \mathbf{y},
 \end{equation}
 
-for input tensor $\mathbf{x} \in \mathbb{R}^{1\times W \times H \times C}$, set of $K$ bounding box tuples $B$, and tensor output $\mathbf{y} \in \mathbb{R}^{K \times w \times h \times C}$ for quantised dimensions $w < W$ and $h < H$. To clarify, the incoming tensor $\mathbf{x}$ is transformed into a ``pseudo-batch'' of $K$ tensors for the $K$ bounding boxes of $B$. Akin to the PatchGAN (see Section \ref{subsec:image_to_image}), the full discriminator output averages over the individual bounding boxes,
+for input tensor $\mathbf{x} \in \mathbb{R}^{1\times W \times H \times C}$, set of $K$ bounding box tuples $B$, and tensor output $\mathbf{y} \in \mathbb{R}^{K \times w \times h \times C}$ with quantised dimensions $w < W$ and $h < H$. To clarify, the incoming tensor $\mathbf{x}$ is transformed into a ``pseudo-batch'' of $K$ tensors for the $K$ bounding boxes of $B$. Akin to the PatchGAN (see Section \ref{subsec:image_to_image}), the full discriminator output averages over the individual bounding boxes,
 
 \begin{equation}
-D_{roi} = \frac{1}{|\mathcal{B}(\mathbf{x})|}\sum_{b \in \mathcal{B}(\mathbf{x})} d_{roi}(\mathbf{x}, b)
+D_{roi} = \frac{1}{|\mathcal{B}(\mathbf{x})|}\sum_{b \in \mathcal{B}(\mathbf{x})} d_{roi}(\mathbf{x}, b),
 \end{equation}
 
-where the operator $\mathcal{B}$ returns the set of bounding boxes of image $\mathbf{x}$. Of course, in our case, the bounding boxes are decided in advance by virtue of drawing the content images. We train this in a loss function,
+where the operator $\mathcal{B}$ returns the set of bounding boxes of image $\mathbf{x}$. Of course, in the present case, the bounding boxes are decided in advance by virtue of drawing the content images. This is trained in the loss function,
 
 \begin{equation}
-\max_{G, F}\min_{D_X, D_Y, D_{roi}} \mathcal{L}_{CG} + \mathcal{L}_{GAN}(D_{roi}, G, X, Y)
+\max_{G, F}\min_{D_X, D_Y, D_{roi}} \mathcal{L}_{CG} + \mathcal{L}_{GAN}(D_{roi}, G, X, Y),
 \end{equation}
 
-where $\mathcal{L}_{CG}$ is the CycleGAN loss function introduced in Equation \ref{eq:cycle_gan}. The setup is given in Figure \ref{fig:roi_gan}. The problem of obtaining a crop library will vary from problem to problem. In our case, however, we have direct access to such a library from the automatic procedure described in Section \label{subsec:data}. Some basic proofs of concept of using the RoIPool for classification and GAN discrimination are given in Appendix \ref{sec:training_roi_classifier}.
+where $\mathcal{L}_{CG}$ is the CycleGAN loss function defined in Equation \ref{eq:cycle_gan}. The setup is illustrated in Figure \ref{fig:roi_gan}. Just like the contour generation, the problem of obtaining a crop library will vary from problem to problem. In this instance, however, direct access to such a library comes from the automatic procedure described in Section \ref{subsec:object_detection_data}. Some basic proofs of concept of using the RoIPool for classification and GAN discrimination are given in Appendix \ref{sec:training_roi_classifier}.
 
-\begin{figure}[]
+\begin{figure}[h]
 \centering
 \tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
 
@@ -1008,6 +962,12 @@ where $\mathcal{L}_{CG}$ is the CycleGAN loss function introduced in Equation \r
 \draw (274,22) node [anchor=north west][inner sep=0.75pt]   [align=left] {$\displaystyle \cdot \cdot \cdot $};
 \end{tikzpicture}
 
-\caption{Conceptualisation of an extension to adversarial image-to-image networks with a region of interest discriminator $D_{roi}$. $D_{roi}$ relies on a library of real crops to compare to cells synthesised by $G$ in the prescribed regions of the content image.}
+\caption{Conceptualisation of an extension to adversarial image-to-image translation networks with a region of interest discriminator $D_{roi}$. The $D_{roi}$ relies on a library of real crops to compare to cells synthesised by $G$ in the prescribed regions of the content image.}
 \label{fig:roi_gan}
 \end{figure}
+
+\section{Discussion}
+
+This chapter illustrated the viability for the synthesis of images of cells based on phase contrast images of CAR-T experiments. This was shown both at the level of single cells with convolutional and conditional GANs in Section \ref{sec:feasibility_synthesising}, and at the population level through applications of style transfer both classical (Section \ref{subsec:style_transfer_application}) and with CycleGANs (Section \ref{sec:cycle_gans}). Generating populations of cells according to a content image ``blueprint'' proves to be a powerful way of generating complete annotations in an entirely unsupervised way, sufficient to train a state-of-the-art object detection system (Section \ref{sec:fine_tuning_rcnn}). The blueprint (Section  \ref{subsec:conditional_dilation}) models various characteristics of individual cells and groups of cells in order to facilitate the style transfer. A means for incorporating class information was also conceptualised in Section \ref{sec:full_object_detection_dataset} as a full realisation of the concept of unsupervised training data creation for the phenotyping of CAR-T experiments.
+
+At least two aspects of the current pipeline can be improved. The first is the blueprint content image, which, as of yet, does not account for the tendency of Raji cells to cluster. As mentioned previously, this is a matter of changing the distribution of cell placement in the blueprint from uniform random placement. The second is to finalise the inclusion of class information in the training set synthesis. A concept was proposed in Section \ref{sec:full_object_detection_dataset}, with a number of alternatives also outlined.

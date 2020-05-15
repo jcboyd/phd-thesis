@@ -3,35 +3,34 @@
 \chapter{Deep learning fundamentals} % Main chapter title
 \label{Chapter2} % For referencing the chapter elsewhere, use \ref{Chapter1} 
 
-\textbf{Summary}: \emph{This disseration makes extensive use of artificial neural networks and deep learning. In this chapter we detail the basic properties of neural networks and extend show how these ideas extend to the deep, convolutional variety of networks, key to modern image processing. We further trace the history of the development of deep learning, and its extension into the various problem domains of computer vision}
+\textbf{Summary}: \emph{This dissertation makes extensive use of artificial neural networks and deep learning. This chapter explores the basic properties of neural networks and shows how these ideas extend to the deep convolutional networks key to modern image processing. It further briefly traces the history of the development of deep learning, and its extension into the various problem domains of computer vision.}
 
-\textbf{R\'esum\'e}: \emph{Ce chapitre...}
+\textbf{R\'esum\'e}: \emph{Cette th\`ese fait largement appel aux r\'eseaux de neurones artificiels et \`a l'apprentissage profond. Ce chapitre explore les propri\'et\'es de base des r\'eseaux de neurones et montre comment ces id\'ees s'\'etendent \`a la vari\'et\'e profonde et convolutionnelle des r\'eseaux, cl\'e du traitement moderne des images. Il retrace ensuite l'histoire du d\'eveloppement de l'apprentissage profond et de son extension dans les diff\'erents domaines de la vision par ordinateur.}
 
-\section{The building blocks of neural networks}
+\section{The building blocks of artificial neural networks}
 \label{sec:building_blocks_nn}
 
-A neural network is a collection of computational units known as \emph{neurons}, organised into a sequence of \emph{layers}. An input passes \emph{forward} through a neural network, undergoing a series of transformations through combination with a set of \emph{weights} at each layer. During a training procedure, the neural network is shown examples of input data paired with target outputs. After each round of training, the neural network adjusts its (randomly initialised) weights so as to make it a little more likely to emit the target values given future appearances of the input data.
+An artificial neural network (henceforth \emph{neural network}) is a collection of computational units known as \emph{neurons}, organised into a sequence of \emph{layers}. An input passes \emph{forward} through a neural network, undergoing a series of transformations through combination with a set of \emph{weights} in each layer. During a training procedure, the neural network is shown examples of input data paired with target outputs. After each round of training, the neural network adjusts its (randomly initialised) weights so as to make it a little more likely to emit the target values given future appearances of the input data.
 
-A simple neural network invokes one or more \emph{hidden layers} between input and output, for example,
+A simple neural network invokes one or more \emph{hidden} layers between input and output, for example,
 
 \begin{align}
-\mathbf{h}(\mathbf{x}) &= \sigma(\mathbf{W}^{(1)}\mathbf{x}  + \mathbf{b}^{(1)}) & \text{(hidden layer)} \notag \\
-\mathbf{f}(\mathbf{x}) &= \mathcal{S}(\mathbf{W}^{(2)}\mathbf{h} + \mathbf{b}^{(2)}) & \text{(output layer)}
+h(\mathbf{x}) &= \sigma(\mathbf{W}^{(1)}\mathbf{x}  + \mathbf{b}^{(1)}) & \text{(hidden layer)} \notag \\
+f(\mathbf{x}) &= \mathcal{S}(\mathbf{W}^{(2)}\mathbf{h} + \mathbf{b}^{(2)}) & \text{(output layer)}
+\label{eq:simple_neural_network}
 \end{align}
 
-for input vector $\mathbf{x}$, first layer weights and biases matrix $\mathbf{W}^{(1)}$ and vector $\mathbf{b}^{(1)}$, and second layer weights and biases $\mathbf{W}^{(2)}$ and vector $\mathbf{b}^{(2)}$. The function $\sigma$ is a non-linear \emph{activation function}\footnote{Historically, this was the logistic function, $\sigma(x) = 1 / (1 + \exp{\{-x\}})$, a continuous approximation to the Heaviside step function (think on/off), however, in recent years, it has been superseded by the ramp function, more commonly known as the rectified linear unit, $\text{ReLU}(x) = max(0, x)$, which provides various training benefits.} and $\mathcal{S}$ is the softmax function at the output layer. The softmax is optional but often used for classification problems as it maps its inputs to categorical probabilities. In this case, the network is normally trained against a cross entropy loss function,
+for input vector $\mathbf{x}$, first layer weights and biases matrix $\mathbf{W}^{(1)}$ and vector $\mathbf{b}^{(1)}$, and second layer weights and biases matrix $\mathbf{W}^{(2)}$ and vector $\mathbf{b}^{(2)}$. The function $\sigma$ is a non-linear \emph{activation function}\footnote{Historically, this was the logistic function, $\sigma(x) = 1 / (1 + \exp{\{-x\}})$, a continuous approximation to the Heaviside step function (think on/off), however, in recent years, it has been superseded by the ramp function, more commonly known as the rectified linear unit, $\text{ReLU}(x) = max(0, x)$, which provides various training benefits.} and $\mathcal{S}$ is the softmax function at the output layer. The softmax is optional but often used for classification problems as it maps its inputs to categorical probabilities. In this case, the network is normally trained against a cross entropy loss function,
 
 \begin{equation}
 \mathcal{L} = \sum_i -\log(p_{y_i}),
 \label{eq:neural_network_cross_entropy}
 \end{equation}
 
-where $p_{y_i} = f(\mathbf{x}_i)_{y_i}$ is the network output (probability) for the $i$th training input $\mathbf{x}_i$, indexed at the (paired) $i$th target label $y_i$ . Equation \ref{eq:neural_network_cross_entropy} is a simplification of the cross entropy formula for the case where the $y_i$ are ``one-hot'' vectors. Note that neural networks can be trained for classification, regression, or unsupervised feature extraction, depending on the requirements of the data. Each entails a different output layer and loss function for the network. Figure \ref{fig:neural_network} depicts an examle of our simple neural network \emph{architecture}.
+where $p_{y_i} = f(\mathbf{x}_i)_{y_i}$ is the network output (probability) for the $i$th training input $\mathbf{x}_i$, indexed at the (paired) $i$th target label $y_i$. Equation \ref{eq:neural_network_cross_entropy} is a simplification of the cross entropy formula for the case where the $y_i$ are ``one-hot'', that is, all the probability mass is allocated to a single, ``true'' value. Note that neural networks can be trained for classification, regression, or unsupervised feature extraction, depending on the structure of the dataset. Each entails a different output layer and loss function for the network. Figure \ref{fig:neural_network} depicts an example of the simple neural network \emph{architecture} in Equation \ref{eq:simple_neural_network}.
 
 \begin{figure}
 \centering
-
-
 \tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
 
 \begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
@@ -210,20 +209,22 @@ where $p_{y_i} = f(\mathbf{x}_i)_{y_i}$ is the network output (probability) for 
 \label{fig:neural_network}
 \end{figure}
 
-The neural network framework gives us freedom over the number of layers and the number of neurons in each layer. The more neurons, the more expressive the network, yet the more likely overfitting becomes\footnote{It is rare to require more than three layers, however, and exceeding this amount will be done to exploit deep hierarchical structures in the data.}. We may extend to a multi-layer network simply by stacking the desired number of layers,
+The neural network framework gives freedom over the number of layers and the number of neurons in each layer. The more neurons, the more expressive the network, yet the more likely overfitting becomes\footnote{It is rare to require more than three fully-connected layers, however, and exceeding this amount will be done specifically to exploit deep hierarchical structures in the data.}. We may extend to a multi-layer network simply by stacking the desired number of layers,
 
 \begin{equation}
-\mathbf{f}(\mathbf{x}) = \mathcal{S}(\mathbf{W}^{(M)}\sigma(\mathbf{W}^{(M-1)}(\cdots\sigma(\mathbf{W}^{(1)}\mathbf{x} + \mathbf{b}^{(1)})\cdots) + \mathbf{b}^{(M-1)})  + \mathbf{b}^{(M)})
+f(\mathbf{x}) = \mathcal{S}(\mathbf{W}^{(M)}\sigma(\mathbf{W}^{(M-1)}(\cdots\sigma(\mathbf{W}^{(1)}\mathbf{x} + \mathbf{b}^{(1)})\cdots) + \mathbf{b}^{(M-1)})  + \mathbf{b}^{(M)}).
 \end{equation}
 
-Thus, the network layers are linear transformations interspersed with non-linear functions. When the inputs correlate positively with a vector of weights, the corresponding hidden layer neuron tends to become active via the non-linearity. In this way, each neuron of a hidden layer amounts to a feature detector for the prior layer. The hidden layer activations are then recombined in the next layer, and so on, allowing for ever more complex aggregations of features. This is the essence of deep learning. However, this tends not to work very well without certain inductive biases, (and, indeed, an amenable dataset) which we will encounter in Section \ref{sec:convolutional_neural_networks}. Despite their inherent non-linearity, and non-convexity, neural networks can be trained with standard gradient descent,
+Thus, the network layers are linear transformations interspersed with non-linear functions. When the inputs correlate positively with a vector of weights, the corresponding hidden layer neuron tends to become active via the non-linearity. In this way, each neuron of a hidden layer amounts to a feature detector for the prior layer. The hidden layer activations are then recombined in the next layer, and so on, allowing for ever more complex aggregations of features. This is the essence of deep learning. However, this tends not to work very well without certain inductive biases, (and, indeed, an amenable dataset) which we will encounter in Section \ref{sec:convolutional_neural_networks}.
+
+Despite their inherent non-linearity, and non-convexity, neural networks can be trained with standard gradient descent,
 
 \begin{equation}
-\theta_{t+1} \leftarrow \theta_t - \alpha \cdot \nabla_{\theta}\mathcal{L}
+\theta_{t+1} \leftarrow \theta_t - \alpha \cdot \nabla_{\theta}\mathcal{L},
 \label{eq:gradient_descent}
 \end{equation}
 
-for the full set of model parameters $\theta$ and \emph{learning rate} $\alpha$. More sophisticated update rules than vanilla gradient descent exist such as RMSprop (\cite{tieleman2012lecture}), and Adam (\cite{kingma2014adam}). These methods improve over the Equation \ref{eq:gradient_descent} by adapting a learning rate for each parameter (rather than one-size-fits-all). Whatever the chosen method, the gradients are always computed using the backpropagation algorithm, which we describe presently.
+for the full set of model parameters $\theta$ and \emph{learning rate} $\alpha$. More sophisticated update rules than vanilla gradient descent exist such as RMSprop (\cite{tieleman2012lecture}), and Adam (\cite{kingma2014adam}). These methods improve over Equation \ref{eq:gradient_descent} by adapting a learning rate for each parameter (rather than one-size-fits-all). Whatever the chosen method, the gradients are always computed using the backpropagation algorithm, which we examine presently.
 
 %\begin{figure}
 %\centering
@@ -240,51 +241,51 @@ for the full set of model parameters $\theta$ and \emph{learning rate} $\alpha$.
 The procedure for computing the gradients at each iteration of gradient descent is called backpropagation. Backpropagation is an application of the chain rule to the graphical structure of the neural network. The crucial formula for backpropagation, as presented in \cite{rumelhart1985learning} is,
 
 \begin{equation}
-\frac{\partial L}{\partial x_i} = \sum_j \frac{\partial L}{\partial y_{ij}}\cdot\frac{\partial y_{ij}}{\partial x_i},
+\frac{\partial\mathcal{L}}{\partial x_i} = \sum_j \frac{\partial\mathcal{L}}{\partial y_{ij}}\cdot\frac{\partial y_{ij}}{\partial x_i},
 \label{eq:backpropagation}
 \end{equation}
 
-that is, the gradient of neuron $x_i$ at a given layer $l$ is the sum product of the gradients of the neurons emanating from it $y_{ij}$ and the gradient of the connection between them. From a practical standpoint, each layer $l$ over which we perform backpropagation requires three computations:
+that is, the gradient of neuron $x_i$ at a given layer $l$ is the sum product of the gradients of the neurons of the following layer $(l+1)$ emanating from it $y_{ij}$ and the gradient of the connections between them. From a practical standpoint, each layer $l$ over which we perform backpropagation requires three computations:
 
 \begin{enumerate}
-\item $\frac{\partial L}{\partial \mathbf{s}^{(l)}}$, the gradient of the \emph{scores}, $\mathbf{s}^{(l)} = \mathbf{W}^{(l)}\mathbf{x}^{(l)} + \mathbf{b}^{(l)}$. Note this is a ``pseudo-layer'' between the linear transformation and the activation.
-\item $\frac{\partial L}{\partial \mathbf{W}^{(l)}}$, the gradient of the weights. These are recorded to ultimately make the descent step (Equation \ref{eq:gradient_descent}).
-\item $\frac{\partial L}{\partial \mathbf{x}^{(l)}} = \frac{\partial L}{\partial \mathbf{\sigma}^{(l-1)}}$, the gradient of the input (previous activation). This is the \emph{error signal} that is passed back to the layer below.
+\item $\frac{\partial\mathcal{L}}{\partial \mathbf{s}^{(l)}}$, the gradient of the \emph{scores}, $\mathbf{s}^{(l)} = \mathbf{W}^{(l)}\mathbf{x}^{(l)} + \mathbf{b}^{(l)}$. Note this is a ``pseudo-layer'' between the linear transformation and the activation.
+\item $\frac{\partial\mathcal{L}}{\partial \mathbf{W}^{(l)}}$, the gradient of the weights. These are recorded to ultimately make the descent step (Equation \ref{eq:gradient_descent}).
+\item $\frac{\partial\mathcal{L}}{\partial \mathbf{x}^{(l)}} = \frac{\partial\mathcal{L}}{\partial \mathbf{\sigma}^{(l-1)}}$, the gradient of the input (previous activation). This is the \emph{error signal} that is passed back to the layer below.
 \end{enumerate}
 
-Let us first consider (1), the gradient of the scores. In general, we compute, $\frac{\partial L}{\partial \mathbf{s}^{(l)}} = \frac{\partial L}{\partial \boldsymbol\sigma^{(l)}}\cdot\frac{\partial\boldsymbol\sigma^{(l)}}{\partial\mathbf{s}^{(l)}}$ where $\frac{\partial L}{\partial \boldsymbol\sigma^{(l)}} = \frac{\partial L}{\partial \mathbf{x}^{(l+1)}}$, since the activation of the present layer is the input to the following layer. The activation function $\sigma$ is applied element-wise. Consequently, in the pseudo-layer between linear transform and activation, each neuron has a single connection. Therefore, with respect to Equation \ref{eq:backpropagation}, the sum reduces to a single element per gradient giving,
+Let us first consider (1), the gradient of the scores. In general, we compute, $\frac{\partial\mathcal{L}}{\partial \mathbf{s}^{(l)}} = \frac{\partial\mathcal{L}}{\partial \boldsymbol\sigma^{(l)}}\cdot\frac{\partial\boldsymbol\sigma^{(l)}}{\partial\mathbf{s}^{(l)}}$ where $\frac{\partial\mathcal{L}}{\partial \boldsymbol\sigma^{(l)}} = \frac{\partial\mathcal{L}}{\partial \mathbf{x}^{(l+1)}}$, since the activation of the present layer is the input to the following layer. The activation function $\sigma$ is applied element-wise. Consequently, in the pseudo-layer between linear transform and activation, each neuron has a single connection. Therefore, with respect to Equation \ref{eq:backpropagation}, the sum reduces to a single element per gradient giving,
 
 % Since we have $\sigma(\mathbf{s}) = [\sigma(s_1), \sigma(s_2), \cdots \sigma(s_k)]^T$, an element-wise transformation, we can calculate the gradient element-wise as,
 
 \begin{equation}
-\frac{\partial L}{\partial \mathbf{s}^{(l)}} =
+\frac{\partial\mathcal{L}}{\partial \mathbf{s}^{(l)}} =
 \begin{bmatrix}
-\frac{\partial L}{\partial\sigma_1^{(l)}}\cdot\frac{\partial\sigma_1^{(l)}}{\partial{s}_1^{(l)}} \\ 
+\frac{\partial\mathcal{L}}{\partial\sigma_1^{(l)}}\cdot\frac{\partial\sigma_1^{(l)}}{\partial{s}_1^{(l)}} \\ 
 \vdots \\
-\frac{\partial L}{\partial\sigma_k^{(l)}}\cdot\frac{\partial\sigma_k^{(l)}}{\partial{s}_k^{(l)}} \\
+\frac{\partial\mathcal{L}}{\partial\sigma_k^{(l)}}\cdot\frac{\partial\sigma_k^{(l)}}{\partial{s}_k^{(l)}} \\
 \end{bmatrix},
 \label{eq:backprop_scores}
 \end{equation}
 
 where for sigmoid, $\frac{\partial\sigma_i^{(l)}}{\partial{s}_i^{(l)}} = \partial\sigma_i^{(l)}(1 - \sigma_i^{(l)})$, and for ReLU, $\frac{\partial\sigma_i^{(l)}}{\partial{s}_i^{(l)}} = 1_{\{\sigma_i^{(l)} > 0\}}$.
 
-For computation (2), the weights gradient, consider, $\frac{\partial L}{\partial w_{kj}^{(l)}} = \frac{\partial L}{\partial s_j}\cdot\frac{\partial s_j}{\partial w_{kj}^{(l)}} = \frac{\partial L}{\partial s_j}\cdot x_j$. In vector form this gives us, $\frac{\partial L}{\partial \mathbf{s}^{(l)}}\mathbf{x}^T$, that is, the outer product of the score gradient and the input vector. Considering that the loss over a batch is the sum of losses for each sample, we have in general, for batch $\mathbf{X} \in \mathbb{R}^{D \times M}$,
+For computation (2), the weights gradient, consider, $\frac{\partial L}{\partial w_{kj}^{(l)}} = \frac{\partial\mathcal{L}}{\partial s_j}\cdot\frac{\partial s_j}{\partial w_{kj}^{(l)}} = \frac{\partial\mathcal{L}}{\partial s_j}\cdot x_j$. In vector form this gives us, $\frac{\partial\mathcal{L}}{\partial \mathbf{s}^{(l)}}\mathbf{x}^T$, that is, the outer product of the score gradient and the input vector. Considering that the loss over a batch is the sum of losses for each sample, in general we have for batch $\mathbf{X} \in \mathbb{R}^{D \times M}$,
 
 \begin{equation}
-\frac{\partial L}{\partial \mathbf{W}^{(l)}} = \frac{\partial L}{\partial \mathbf{s}^{(l)}}\cdot\mathbf{X}^T
+\frac{\partial\mathcal{L}}{\partial \mathbf{W}^{(l)}} = \frac{\partial\mathcal{L}}{\partial \mathbf{s}^{(l)}}\cdot\mathbf{X}^T.
 \label{eq:backprop_weights}
 \end{equation}
 
 For the bias terms, consider that with the bias trick, the gradients $\frac{\partial s_j}{\partial b_{k}^{(l)}} = 1, \forall k$. We can therefore simply sum the score gradients over the size $m$ batch, $\sum_m\frac{\partial s_{mj}}{\partial b_{k}^{(l)}}$. 
 
-Finally, for computation (3), simply consider the chain rule, $\frac{\partial L}{\partial\mathbf{x}^{(l)}} = \frac{\partial L}{\partial\mathbf{s}^{(l)}}\cdot\frac{\partial\mathbf{s}^{(l)}}{\partial\mathbf{x}^{(l)}}.$ It is easy to show by forming the Jacobian matrix that $\frac{\partial\mathbf{s}^{(l)}}{\partial\mathbf{x}^{(l)}} = \mathbf{W}^{(l)}$. Hence,
+Finally, for computation (3), simply consider the chain rule, $\frac{\partial\mathcal{L}}{\partial\mathbf{x}^{(l)}} = \frac{\partial\mathcal{L}}{\partial\mathbf{s}^{(l)}}\cdot\frac{\partial\mathbf{s}^{(l)}}{\partial\mathbf{x}^{(l)}}.$ It is easy to show by forming the Jacobian matrix that $\frac{\partial\mathbf{s}^{(l)}}{\partial\mathbf{x}^{(l)}} = \mathbf{W}^{(l)}$. Hence,
 
 \begin{equation}
-\frac{\partial L}{\partial \mathbf{x}^{(l)}} = \frac{\partial L}{\partial \mathbf{s}^{(l)}}\cdot\mathbf{W}^T
+\frac{\partial\mathcal{L}}{\partial \mathbf{x}^{(l)}} = \frac{\partial\mathcal{L}}{\partial \mathbf{s}^{(l)}}\cdot\mathbf{W}^T.
 \label{eq:backprop_activations}
 \end{equation}
 
-This final gradient is passed to the previous layer as $\frac{\partial L}{\partial \boldsymbol{\sigma}^{(l-1)}}$ to continue the backpropagation. Upon traversing the network layers, the weight gradients are used to update to weights as in Equation \ref{eq:gradient_descent}.
+This final gradient is passed to the previous layer as $\frac{\partial\mathcal{L}}{\partial \boldsymbol{\sigma}^{(l-1)}}$ to continue the backpropagation. Upon traversing the network layers, the weight gradients are used to update the weights as in Equation \ref{eq:gradient_descent}.
 
 \section{Convolutional neural networks}
 \label{sec:convolutional_neural_networks}
@@ -609,9 +610,9 @@ Convolutional neural networks (CNNs) are a family of neural network architecture
 \label{eq:convolution_operation}
 \end{equation}
 
-and is illustrated in Figure \ref{fig:convolution_operation}. Convolutions are useful for operations such as feature extraction and edge detection. A CNN is a neural network explicitly wired to perform convolutions\footnote{A convolutional layer can still be represented as a sparse fully-connected layer.}. In a convolutional layer, the elements of kernel $\mathbf{K}$ become learnable weights, replacing the large, fully-connected weight matrices from Section \ref{sec:building_blocks_nn}. In effect, the weights are \emph{shared} across the input surface, greatly reducing the model dimensionality.
+and is illustrated in Figure \ref{fig:convolution_operation}. Convolutions are useful for operations such as feature extraction and edge detection. A CNN is a neural network explicitly wired to perform convolutions\footnote{A convolutional layer can nevertheless be represented as a sparse linear layer.}. In a convolutional layer, the elements of kernel $\mathbf{K}$ become learnable weights, replacing the large, fully-connected weight matrices from Section \ref{sec:building_blocks_nn}. In effect, the weights are \emph{shared} across the input surface, greatly reducing the model dimensionality.
 
-The earliest recognisable CNN is LeNet (\cite{lecun1998gradient}), bearing the name of the principal author, Yann LeCun. The destiny of LeNet is forever entwined with MNIST, the dataset it was developed to classify. MNIST is a 10-class image dataset of small ($28\times28$px) handwritten digits ($0-9$) in greyscale, crowd-sourced from US school students. The LeNet architecture can be written as,
+The earliest recognisable CNN is LeNet (\cite{lecun1998gradient}), bearing the name of its principal author, Yann LeCun. The destiny of LeNet is forever entwined with MNIST, the dataset it was developed to classify. MNIST is a 10-class image dataset of small ($28\times28$px) handwritten digits ($0-9$) in greyscale, crowd-sourced from US school students. The LeNet architecture can be written as,
 
 \begin{align}
 \mathbf{H}_1 &= \sigma(\mathbf{X} * \mathbf{K}^{(1)}) & \text{(first convolutional layer)}\notag \\
@@ -623,7 +624,7 @@ The earliest recognisable CNN is LeNet (\cite{lecun1998gradient}), bearing the n
 \mathbf{f}(\mathbf{X}) &= \mathcal{S}(\mathbf{W}^{(3)}\mathbf{F}_2 + \mathbf{b}^{(3)}) & \text{(output layer)}
 \end{align}
 
-where for MNIST, the $\mathbf{X} \in \mathbb{R}^{28\times28}$ denotes an input image (two-dimensional array), $*$ denotes the convolution operation, and $\sigma$ and $\mathcal{S}$ denote the activation functions, as described previously. 
+where for MNIST, the $\mathbf{X} \in \mathbb{R}^{28\times28}$ denotes an input image (two-dimensional array), $*$ denotes the convolution operation, and $\sigma$ and $\mathcal{S}$ denote  activation functions, as described previously. 
 
 \begin{figure}
 \centering
@@ -670,15 +671,15 @@ where for MNIST, the $\mathbf{X} \in \mathbb{R}^{28\times28}$ denotes an input i
 % Text Node
 \draw (121,122.4) node [anchor=north west][inner sep=0.75pt]    {conv$_{n+1}$};
 \end{tikzpicture}
-\caption{Each kernel of a convolutional layer (in red) performs a convolution as a tensor-product at each spatial location of an incoming tensor, to produce a single channel of the output tensor.}
+\caption{Each kernel of a convolutional layer (in red) performs a convolution as a tensor-product at each spatial location of an incoming tensor, to produce a single activation map (channel) in the output tensor.}
 \label{fig:convolutional_layer}
 \end{figure}
 
-The first convolutional layers kernels were originally $6$ $5 \times 5$ kernels. The six convolutions are performed on the same input, producing six \emph{activation maps} that are concatenated across the channel dimension. As a result, the following convolutional layer originally had $16$ $5 \times 5 \times 6$ kernels. Notice the kernels are now tensors, so as to account for the multi-channel inputs. This represents a generalisation of Equation \ref{eq:convolution_operation} in which the each channel is convolved separately and the outputs are summed channel-wise. A depiction is given in Figure \ref{fig:convolutional_layer}.  
+The first convolutional kernels were originally $6$ $(5 \times 5)$ kernels. The six convolutions are performed on the same grayscale input image, producing six \emph{activation maps} that are concatenated across the channel dimension. As a result, the following convolutional layer originally had $16$ $(5 \times 5 \times 6)$ kernels. Notice the kernels are now three-dimensioanl tensors rather than arrays, so as to account for the multi-channel inputs. This represents a generalisation of Equation \ref{eq:convolution_operation} in which each channel is convolved separately and the outputs are summed channel-wise. A depiction is given in Figure \ref{fig:convolutional_layer}.
 
-The maxpool are pooling layers (in effect max filter operations), replacing each $2\times2$ grid of pixels with their maxima. The maxpool operations are usually performed at a \emph{stride} of $2$, resulting in an output halved in each spatial dimension. This ensures the most salient features are routed to the proceeding layers.
+The maxpool are pooling layers (in effect max filter operations), replacing each $2\times2$ grid of pixels with its maximum. The maxpool operations are usually performed at a \emph{stride} of $2$, resulting in an output halved in each spatial dimension. This ensures the most salient features are routed to the proceeding layers.
 
-After the final pooling operation, the input tensor is implicitly flattened and traverses a series of final, fully-connected layers. The fully-connected layers were originally of size $120$, $84$, and $10$ neurons, for the $10$-way classification of MNIST digits. Note the numbers are fairly arbitrary and partially reflect the computational budget of the day. The architecture can be understood as having a feature extraction component in the convolutional and pooling layers, and a classification component in the fully-connected layers, with all layers trained end-to-end in unison using backpropagation and gradient descent.
+After the final pooling operation, the input tensor is implicitly flattened and traverses a series of fully-connected layers. The fully-connected layers were originally of size $120$, $84$, and finally $10$ neurons, for the $10$-way classification of MNIST digits. Note the numbers are fairly arbitrary and reflect the computational budget of the day. The architecture can be understood as having a feature extraction component in the convolutional and pooling layers, and a classification component in the fully-connected layers, with all layers trained end-to-end in unison using backpropagation and gradient descent. At each convolutional layer, activations arise from input features coinciding with the motifs embedded in the kernels. These are promoted by the max pooling layers, which simultaneously coarsen the representation. Thus, salient motifs discovered at lower levels, such as edges and corners, can be recombined and aggregated into shapes, and, later, semantic objects. \cite{zeiler2014visualizing} confirmed empirically that such feature hierarchies are learned by deep CNNs.
 
 %$\mathbf{F}_1 \in \mathbb{R}^{120}$ concatenates the 16 activation maps of size $5\times5$ vector. The rest of the network is like a traditional fully-connected network with $\mathbf{F}_2 \in \mathbb{R}^{84}$ and a $10 \times 1$ output layer.
 
@@ -688,7 +689,7 @@ After the final pooling operation, the input tensor is implicitly flattened and 
 
 \subsection{AlexNet and the ConvNet revolution}
 
-The emphatic victory of AlexNet (\cite{krizhevsky2012imagenet}) in the 2012 ImageNet Large Scale Visual Recognition Challenge (ILSVRC)\footnote{1000 classes, 1 million images} heralded the inexorable rise of CNNs. While emulating the same basic design as LeNet, the AlexNet architecture was deeper (more layers) and wider (more neurons/kernels), and processed larger images ($224\times224\times3$px), featuring in excess of $60$ million parameters over 8 learnable layers. The breakthrough of AlexNet is often attributed to the conjunction of three technological developments:
+The emphatic victory of AlexNet (\cite{krizhevsky2012imagenet}) in the 2012 ImageNet Large Scale Visual Recognition Challenge (ILSVRC)\footnote{1000 classes, over 1 million images} heralded the inexorable rise of CNNs. While emulating the same basic design as LeNet, the AlexNet architecture was deeper (more layers) and wider (more neurons/kernels), and processed larger images ($224\times224\times3$px), sporting in excess of $60$ million parameters over $8$ learnable layers. The breakthrough of AlexNet is often attributed to the conjunction of three technological developments:
 
 \begin{enumerate}
 \item The rise of graphical processing units (GPUs)
@@ -696,9 +697,9 @@ The emphatic victory of AlexNet (\cite{krizhevsky2012imagenet}) in the 2012 Imag
 \item The streamlining of neural network training e.g. more stable activation functions (ReLU), adaptive optimisers, regularisers such as dropout, and better weight initialisation or pre-training strategies.
 \end{enumerate}
 
-With academic and industrial vision research in full swing, VGGNet\footnote{Visual Geometry Group at Oxford University.} and GoogLeNet were followed as ILSVRC 2014 frontrunners, pushing the state-of-the-art ever further, while achieving lasting fame. The competition winner, GoogLeNet, pioneered a more complex neural network design by engineering the \emph{inception module}, a concatenation of differently-sized convolutions. Laying several inception blocks end-to-end constitutes the 22-learnable-layer GoogLeNet. VGGNet likewise strived for unprecedented network depth (up to 19 learnable layers) while advocating some simple design principles. For example, (padded) $3\times 3$ convolutions are used everywhere, given that a stack of three $3 \times 3$ convolutions with $C$ channels has a receptive field of size $7 \times 7$ on its inputs, despite having $27C^2$ weights, fewer than a single $7 \times 7$ kernel at $49C^2$.
+With academic and industrial vision research in full swing, VGGNet\footnote{Visual Geometry Group at Oxford University.} (\cite{simonyan2014very}) and GoogLeNet (\cite{szegedy2015going}) followed as ILSVRC 2014 frontrunners, pushing the state-of-the-art ever further, while achieving lasting fame. The competition winner, GoogLeNet, pioneered a more complex neural network design by engineering the \emph{inception module}, a concatenation of differently-sized convolutions. Laying several inception blocks end-to-end constitutes the 22-learnable-layer GoogLeNet. VGGNet likewise strived for unprecedented network depth (up to 19 learnable layers) while advocating some simple design principles. For example, (padded) $3\times 3$ convolutions are used everywhere, given that a stack of three $3 \times 3$ convolutions with $C$ channels has a receptive field of size $7 \times 7$ on its inputs, despite having $27C^2$ weights, fewer than a single $7 \times 7$ kernel at $49C^2$.
 
-A multitude of network architectures have since been proposed. Among the most influential is ResNet, which introduced the residual block: a skip connection bypassing a stack convolutions. The motivation is to prevent the gradients of deeper layers from overwhelming all others early during training. The residual block thus facilitated the training of extremely deep networks of up to 1202 layers\footnote{However, the standard depths are 50, 101, and 152 layers.}. More recently, EfficientNet proposed a ``compound scaling'' design strategy to increase network depth, width, and resolution in unison to maximise the performance benefit. As of February 2020, the state-of-the-art in ImageNet is an EfficientNet variant. Table \ref{table:convnets} displays results from the history of the ILSVRC challenge illustrating the advancement of minimisation of test error over time. Note that AlexNet was evaluated on the ILSVRC 2012 dataset, whereas all others where evaluated on a similar dataset from the 2014 competition. Also, while GoogLeNet was the ILSVRC 2014 challenge winner, it prevailed only with a complex ensemble approach; we provide single-model results only. 
+A multitude of network architectures have since been proposed. Among the most influential is ResNet (\cite{he2016deep}), which introduced the residual block: a skip connection bypassing a stack convolutions. The motivation is to prevent the gradients of deeper layers from overwhelming all others early during training. The residual block thus facilitated the training of extremely deep networks of up to 1202 layers\footnote{However, the standard depths are 50, 101, and 152 layers.}. More recently, EfficientNet (\cite{tan2019efficientnet}) proposed a ``compound scaling'' design strategy to increase network depth, width, and resolution in unison to maximise the performance benefit. As of February 2020, the state-of-the-art in ImageNet is an EfficientNet variant. Table \ref{table:convnets} displays results from the history of the ILSVRC challenge illustrating the advancement of minimisation of test error over time. Note that AlexNet was evaluated on the ILSVRC 2012 dataset, whereas all others where evaluated on a similar dataset from the 2014 competition. Also, while GoogLeNet was the ILSVRC 2014 challenge winner, it prevailed only with a complex ensemble approach; we provide single-model results only. 
 
 \begin{table}
 \centering
@@ -723,7 +724,7 @@ A multitude of network architectures have since been proposed. Among the most in
 %     text width=3.5em, text centered, rounded corners, minimum height=3em]
 % \tikzstyle{line} = [draw, -latex']
 
-An object detection system $f$ is a model or automated pipeline that both localises and classifies ontological objects in images. Localisation is usually expressed as a bounding box, which the detector emits along with the class prediction as the tuple,
+An object detection system $f$ is a model or automated pipeline that both localises and classifies ontologised objects in images. Localisation is usually expressed as a bounding box, which the detector emits along with the class prediction as a tuple,
 
 \begin{equation}
 f : \mathbf{x} \to \big\{(x, y, w, h, c)\big\},
@@ -740,28 +741,28 @@ for image $\mathbf{x}$, where $x, y$ are the coordinates of the bounding box cen
 
 Whereas the ILSVRC datasets came to set the gold standard benchmarks in image classification, similarly rich datasets predominate for object detection. The Microsoft Common Objects in COntext (COCO) (\cite{lin2014microsoft}) (80 classes $+$ background) and the PASCAL\footnote{Pattern Analysis, Statistical Modelling and Computational Learning} Visual Object Classes (VOC) challenge (20 classes $+$ background) datasets (\cite{everingham2010pascal}) are the two leading datasets against which state-of-the-art object detection systems are tested.  Following the explosion of interest in CNNs as image classifiers in 2012, rapid progress was made virtually in parallel for neural object detectors. An early example is \emph{Overfeat} (\cite{sermanet2013overfeat})), appearing in 2013. The basic architecture of Overfeat was an AlexNet, refurbished as a fully-convolutional model\footnote{Replacing fully-connected with convolutional layers frees the network from the constraint of a fixed input size.}. 
 
-No family of object detectors is more celebrated than the R-CNN series, however, the study of which is to be recommended to the pupil of deep learning.
+No family of object detectors is more celebrated, however, than the R-CNN series, the study of which is to be recommended to the student of deep learning.
 
 \subsection{Regions with CNN features}
-
+\label{subsec:rcnn_definition}
 Regions with CNN features (R-CNN) (\cite{girshick2014rich}) began as a disjoint pipeline consisting of four ordered stages:
 
 \begin{itemize}
 \item[(1)] region proposal
-\item[(2)] feature extraction,
+\item[(2)] feature extraction
 \item[(3a)] object classification 
 \item[(3b)] bounding box correction
 \end{itemize}
 
 In the earliest iterations of R-CNN, the ``selective search'' algorithm played the role of stage (1)\footnote{A greedy algorithm that progressively merges homogeneous regions of an input image, from which derive a large number of bounding box proposals.}. Feature extraction (2) was then performed by a pre-trained CNN, producing a ``CNN code'' feature vector for each region. Stage (3a) consisted of a set of linear models (typically SVMs) that perform one-vs-the-rest classification for each object class. These models were trained offline on the outputs of stage (2), ``warped'' to a standard size. Likewise, in stage (3b), a set of per-class (ridge) regression models are trained to correct the region proposal coordinates $(x, y, w, h)$.
 
-In Fast R-CNN (\cite{girshick2015fast}) stages (3a) and (3b) were absorbed into the CNN ``backbone'' of stage (2) as appendages to the neural feature extractor trained end-to-end. Now, entire images were processed in a single forward pass, with the region proposals cropped from the activation maps. The encoded regions were quantised by a generalisation of the max pooling layer, RoIPool. Faster R-CNN \cite{ren2015faster} completed the work by integrating the region proposal algorithm (1) into the network. For this purpose, a separate region proposal network (RPN) was trained to predict both object presence and bounding box coordinates. A multi-stage training procedure was used to synchronise the weights between the two networks. Consequently, at prediction time, the feature extraction can be performed for both networks in a single forward pass. Then, the RPN heads produce the region proposals, which are passed to the heads of the R-CNN for detection. The overhead of region proposal is therefore negligible, and Faster R-CNN produces state-of-the-art object detection results more or less at real time.
+In Fast R-CNN (\cite{girshick2015fast}) stages (3a) and (3b) were absorbed into the CNN ``backbone'' of stage (2) as appendages to the neural feature extractor trained end-to-end. Now, entire images were processed in a single forward pass, with the region proposals cropped from the activation maps. The encoded regions were quantised by a generalisation of the max pooling layer, RoIPool. Faster R-CNN \cite{ren2015faster} completed this work by integrating the region proposal algorithm (1) into the network. To this end, a separate region proposal network (RPN) was trained to predict both object presence and bounding box coordinates. A multi-stage training procedure was used to synchronise the weights between the two networks. Consequently, at prediction time, the feature extraction can be performed for both networks in a single forward pass. Then, the RPN heads produce the region proposals, which are passed to the heads of the R-CNN for detection. The overhead of region proposal is therefore negligible, and Faster R-CNN produces state-of-the-art object detection results more or less at real time. An even more recent variant, Mask R-CNN (\cite{he2017mask}) adds another stage (3c) to Faster R-CNN for segmentation, resulting in a system capable of the impressive task of \emph{instance segmentation}.
 
 % The synthesis of object detection and semantic segmentation is called \emph{instance segmentation}. Here, semantic objects are not only localised and classified, but also segmented as individual entities. This is the accomplishment of Mask R-CNN (\cite{he2017mask}), which extends Faster R-CNN by appending yet another branch for segmentation. In addition, the features are taken from different layers of the backbone and combined in a \emph{feature pyramid network} (\cite{lin2017feature}), as seen also in RetinaNet (\cite{lin2017focal}).
 
 \section{Fighting overfitting in deep learning}
 
-In machine learning, overfitting is the effect of \emph{fitting the noise instead of the signal}. In practice, all data contains noise obscuring the ground signal, and when a dataset is sufficiently small, a modestly powerful model may interpolate it perfectly, only to then be useless on test data. Much of machine learning is ultimately concerned with striking a balance between overfitting and underfitting. In supervised learning, this balance is evaluated with \emph{generalisation error}, the ability of the model to generalise the data, which is estimated by evaluating a trained model over a test set of independent, unseen data. The \emph{bias-variance decomposition} illustrates the tradeoff between over- and underfitting. Suppose we have $Y = f(x) + \epsilon$ generating training data with $f(x)$ the true signal for data point $x$, and noise, $\epsilon = \mathcal{N}(0, \sigma^2)$. Let our model estimate be denoted by $\hat{f}(x)$. Then, the MSE (here an arbitrary measure of goodness of fit) between an estimate and the true parameters, averaged over all possible data,
+In machine learning, overfitting is the effect of \emph{fitting the noise instead of the signal}. In practice, all data contains noise that obscures the ground signal, and when a dataset is sufficiently small, a modestly powerful model may interpolate it perfectly, only to then be useless on independent test data. Much of machine learning is ultimately concerned with striking a balance between overfitting and underfitting. In supervised learning, this balance is evaluated with \emph{generalisation error}, a measure of the ability of a model to generalise the data. This is estimated by evaluating a trained model over a test set of independent, unseen data. The \emph{bias-variance decomposition} illustrates the tradeoff between over- and underfitting. Suppose we have $Y = f(x) + \epsilon$ generating training data with $f(x)$ the true signal for data point $x$, and noise, $\epsilon = \mathcal{N}(0, \sigma^2)$. Let our model estimate be denoted by $\hat{f}(x)$. Then, the MSE (here an arbitrary measure of goodness of fit) between an estimate and the true parameters, averaged over all possible data,
 
 \begin{align}
 \mathbb{E}[(Y - \hat{f}(x))^2] &= \mathbb{E}[((f(x) + \epsilon - \mathbb{E}[\hat{f}(x)]) + (\mathbb{E}[\hat{f}(x)] - \hat{f}(x)))^2] \\
@@ -771,11 +772,11 @@ In machine learning, overfitting is the effect of \emph{fitting the noise instea
 
 where in step (1.2) some terms are eliminated with zero mean. Note the positive terms means this represents a lower bound on error. The bias term represents underfitting as a simplified model fails to follow a more complex trend (for example a linear model undershooting a higher-order function). This bias will be observed in training error. The variance term represents overfitting as the model varies around its mean greatly to interpolate noisy data. This variance will be observed in test error.
 
-Neural networks, being such powerful ``universal approximators'' (\cite{hornik1989multilayer}), are especially prone to overfitting. Many strategies to attenuate it have therefore been proposed. A common approach used elsewhere in machine learning is \emph{weight regularisation}, often called \emph{weight decay}. This usually takes the form of a square error penalty term in the loss function. Parametric models that overfit usually require large parameter values (in the extreme, a degree $n$ polynomial with up to $n-1$ turning points can interpolate $n+1$ data points), so regularisation curtails this tendency.
+Neural networks, being such powerful ``universal approximators'' (\cite{hornik1989multilayer}), are especially prone to overfitting. Many strategies to attenuate it have therefore been proposed. A common approach used elsewhere in machine learning is \emph{weight regularisation}, often called \emph{weight decay} in the neural net literature. This usually takes the form of a square error penalty term in the loss function. Parametric models that overfit usually require large parameter values (in the extreme, a degree $n$ polynomial with up to $n-1$ turning points can interpolate $n+1$ data points), so regularisation curtails this tendency.
 
-Deep learning succeeds because it embodies a different type of bias. Between layers of a vanilla fully-connected network, the number of weights is quadratic in the number of neurons per layer. Deep learning models reduce this dimensionality by spatial weight sharing, in the case of convolutional network, and weight sharing in time, in the case of recurrent neural networks. These may be referred to as \emph{structural biases}.
+Deep learning succeeds because it embodies a different type of bias. Between layers of a vanilla fully-connected network, the number of weights is quadratic in the number of neurons per layer. Deep learning models reduce this dimensionality by spatial weight sharing, in the case of convolutional networks, and weight sharing in time, in the case of recurrent neural networks. These may be referred to as \emph{structural biases}.
 
-Other tricks to avoid overfitting include dropout (\cite{srivastava2014dropout}), whereby neurons are randomly zeroed-out during training so as to curtail complex co-dependencies; batch normalisation (\cite{ioffe2015batch}), where a normalisation operation is performed on the inputs of each layer so as to standardise their variance (and avoid ``internal covariate shift''); and data augmentation, which aims to increase the data supply. It is data augmentation that has particular relevance to this dissertation, and which we detail in the following.
+Other tricks to avoid overfitting include dropout (\cite{srivastava2014dropout}), whereby neurons are randomly zeroed-out during training so as to curtail complex co-dependencies; batch normalisation (\cite{ioffe2015batch}), where a normalisation operation is performed on the inputs of each layer so as to standardise their variance (and avoid ``internal covariate shift''); and data augmentation, which aims to artificially increase the data supply. It is data augmentation that has particular relevance to this dissertation, and which is detail in the following.
 
 %\begin{figure}
 %\centering
@@ -853,9 +854,9 @@ Other tricks to avoid overfitting include dropout (\cite{srivastava2014dropout})
 \label{fig:augmentation}
 \end{figure}
 
-In the long run, as more data is added, a model with sufficient capacity improves its predictive power (generalisation error). In an ideal world, our data is unlimited. However, annotated data for supervised training is expensive, requiring manual effort, often by domain experts. Data augmentation is a technique for obtaining new data fighting overfitting in machine learning models thereby improving generalisation (test time) error (\cite{shorten2019survey}). The idea is to extract additional data \emph{gratis} from the available dataset, by means of bootstrapping or interpolation. A classic algorithm is SMOTE (Synthetic Minority Over-sampling TechniquE) (\cite{chawla2002smote}), which interpolates lines between training samples and their nearest neighbours in feature space, to create synthetic points, and as an alternative to over-sampling by replacement.
+In the long run, as more data is added, a model with sufficient capacity improves its predictive power (generalisation error). In an ideal world, the data is unlimited. However, annotated data for supervised training is expensive, requiring manual effort, often by domain experts. Data augmentation is a technique for obtaining new data for fighting overfitting in machine learning models, thereby improving generalisation (test time) error (\cite{shorten2019survey}). The idea is to extract additional data \emph{gratis} from the available dataset, by means of bootstrapping or interpolation. A classic algorithm is SMOTE (Synthetic Minority Over-sampling TechniquE) (\cite{chawla2002smote}), which interpolates lines between training samples and their nearest neighbours in feature space, to create synthetic points, and is an alternative to over-sampling by replacement.
 
-Data augmentation is especially vital in deep learning, where powerful neural networks require large datasets to train. Due to the geometry of natural images (pixels are ordered and neighbouring pixels are highly correlated), image data is uniquely receptive to data augmentation, and humans are well-equipped for the engineering of it. Images support a multitude of \emph{label-preserving transformations}, that is, transformations of lower-level image properties that nevertheless maintain the high-level semantic content. Examples are cropping, flipping, rotating, noise injection, convolution, and colour space transformations (if colour is available). These may be referred to as basic image manipulations (\cite{shorten2019survey}) and can be ``stacked'' (combined) endlessly, especially on the fly during training. Classic examples include image warping \cite{lecun1998gradient}, elastic deformations \cite{simard2003best}, and PCA-based colour space transformation \cite{krizhevsky2012imagenet}. However, data augmentation must not be mistaken as equivalent to adding authentic and may reinforce existing biases in a dataset (\cite{shorten2019survey}). The augmented images are highly interdependent and will not in general amount to substantially increasing the coverage of space of all images (see Figure \ref{fig:augmentation}). Additionally, certain transformations will be domain-specific. For example, biomedical imagery can usually be rotated arbitrarily without losing meaning, unlike images of everyday objects or handwritten digits.
+Data augmentation is especially vital in deep learning, where powerful neural networks require large datasets to train. Due to the geometry of natural images (pixels are ordered and neighbouring pixels are highly correlated), image data is uniquely receptive to data augmentation, and humans are well-equipped for the engineering of it. Images support a multitude of \emph{label-preserving transformations}, that is, transformations of lower-level image properties that nevertheless maintain the high-level semantic content. Examples are cropping, flipping, rotating, noise injection, convolution, and colour space transformations (if colour is available). These may be referred to as basic image manipulations (\cite{shorten2019survey}) and can be ``stacked'' (combined) endlessly, especially on the fly during training. Classic examples include image warping (\cite{lecun1998gradient}), elastic deformations (\cite{simard2003best}), and PCA-based colour space transformation (\cite{krizhevsky2012imagenet}). However, data augmentation must not be mistaken as equivalent to adding authentic data and may reinforce existing biases in a dataset (\cite{shorten2019survey}). The augmented images are highly interdependent and will not in general amount to substantially increasing the coverage of space of all images (see Figure \ref{fig:augmentation}). Additionally, certain transformations will be domain-specific. For example, biomedical imagery can usually be rotated arbitrarily without losing meaning, unlike images of everyday objects or handwritten digits.
 
 Deep learning itself can be used as a powerful, albeit expensive, mode of data augmentation. One good example is \emph{adversarial training}. \cite{goodfellow2014explaining} show how with a precise perturbation to a model input, one may ``fool'' a linear model or neural network alike. Consider perturbing model input $\mathbf{x}$,
 
@@ -863,15 +864,15 @@ Deep learning itself can be used as a powerful, albeit expensive, mode of data a
 \hat{\mathbf{x}} = \mathbf{x} + \alpha\cdot\eta,
 \end{equation}
 
-where $\eta = \text{sign}(\mathbf{w})$ for $\mathbf{w}$ are the model weights of a softmax regression model and $\alpha$ a tuning parameter. Now, the model will predict $\sigma(\mathbf{w}^T\hat{\mathbf{x}}) = \sigma(\mathbf{w}^T\mathbf{x} + \alpha\cdot||\mathbf{w}||_1)$. If $\mathbf{x}$ is sufficiently high-dimensional (as image data often is) the perturbations will accumulate even for $\alpha << 1$ and can change the decision of the model. This produces a paradox especially apparent for image data: one may, for example, add a small, carefully chosen value to each pixel of an image, and the model may suddenly predict the wrong object class with high confidence, even though the perturbation is imperceptible to the human eye. This paradox defies intuitions about how neural networks represent images and ``adversarial attacks'' remain problematic for deep learning. \cite{goodfellow2014explaining} nevertheless showed how adversarial attacks could be harnessed during training to strengthen neural networks against such attacks, in effect a sort of data augmentation.
+where $\eta = \text{sign}(\mathbf{w})$ for $\mathbf{w}$ are the model weights of a softmax regression model and $\alpha$ a tuning parameter. Now, the model will predict $\sigma(\mathbf{w}^T\hat{\mathbf{x}}) = \sigma(\mathbf{w}^T\mathbf{x} + \alpha\cdot||\mathbf{w}||_1)$. If $\mathbf{x}$ is sufficiently high-dimensional (as image data often is) the perturbations will accumulate even for $\alpha << 1$ and can change the decision of the model. This produces a paradox especially apparent for image data: one may, for example, add a small, carefully chosen value to each pixel of an image, and the model may suddenly predict the wrong object class with high confidence, even though the perturbation remains imperceptible to the human eye. This paradox defies intuitions about how neural networks represent images and ``adversarial attacks'' remain problematic for deep learning. \cite{goodfellow2014explaining} nevertheless showed how adversarial attacks could be harnessed during training to strengthen neural networks against such attacks, in effect a sort of data augmentation.
 
 Generative models, in particular generative adversarial models (GANs) (\cite{goodfellow2014generative}) (loosely related to the above) are a more recent and exciting prospect for data augmentation. Generative models are trained to learn (perhaps implicitly) the data-generating distribution, and thereupon may be used as a sampling system for synthetic data. Ideally, a generative model based on deep neural networks will make for a more powerful interpolation system than any of the above.
 
-One may also consider transfer learning as a form of data augmentation commuted via pretrained model. The information content of a rich source dataset $\mathcal{D}_S$ may be distilled by a powerful neural network, and transferred to augment the available data for learning some task on a target dataset $\mathcal{D}_T$. Indeed, style transfer involving deep, pretrained networks \cite{gatys2016image} is a powerful mode of data augmentation, as we discover in Chapter \ref{Chapter6}.
+One may also consider transfer learning as a form of data augmentation commuted via pretrained model. The information content of a rich source dataset $\mathcal{D}_S$ may be distilled by a powerful neural network, and transferred to augment the available data for learning some task on a target dataset $\mathcal{D}_T$. Indeed, style transfer involving deep, pretrained networks (\cite{gatys2016image}) is a powerful mode of data augmentation.
 
 \section{Transfer learning}
 
-Transfer learning is a set of solutions for learning problems in which training and test data differ in their marginal distribution, or else that the learning tasks differ between model training and testing (\cite{pan2009survey}). As such, these problems violate the basic assumption for training supervised models. Transfer learning bridges \emph{domains} of learning. A domain $\mathcal{D}$ consists of a feature space $\mathcal{X}$ and marginal probability distribution on that domain $P(X)$. A learning \emph{task} $\mathcal{T}$ is performed on a domain, itself consisting of a label space $\mathcal{Y}$ and some (usually unobserved) objective function $f(\cdot)$. In transfer learning problems we denote source domain and tasks $\mathcal{D}_S$ and $\mathcal{T}_S$ and likewise for target domain $\mathcal{D}_T$ and $\mathcal{T}_T$. The source is the data on which the model is initially trained, and the target is that for which it must be adapted.
+Transfer learning is a set of solutions for learning problems in which training and test data differ in their marginal distribution, or else that the learning tasks differ between model training and testing (\cite{pan2009survey}). As such, these problems violate the basic assumption for training supervised models. Transfer learning bridges \emph{domains} of learning. A domain $\mathcal{D}$ consists of a feature space $\mathcal{X}$ and marginal probability distribution on that domain $P(X)$. A learning \emph{task} $\mathcal{T}$ is performed on a domain, itself consisting of a label space $\mathcal{Y}$ and some (usually unobserved) objective function $f(\cdot)$. In transfer learning problems one denotes source domain and tasks $\mathcal{D}_S$ and $\mathcal{T}_S$, and likewise for target domain, $\mathcal{D}_T$ and $\mathcal{T}_T$. The source is the data on which the model is initially trained, and the target is that for which it must be adapted.
 
 \begin{figure}
 \tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
@@ -960,16 +961,16 @@ Unsupervised\\transfer learning
 \label{fig:transfer_modes}
 \end{figure}
 
-Neural networks, with their endless flexibility, are well-equipped for transfer learning. Shortly after the deep learning revolution in 2012, the potential for the learning transfer of powerful pretrained neural networks was discovered (see \cite{zeiler2014visualizing} and \cite{sharif2014cnn}). Pretrained networks are often used in one of two ways:
+Neural networks, with their endless flexibility, are well-equipped for transfer learning. Shortly after the deep learning revolution of $2012$, the potential for the learning transfer of powerful pretrained neural networks was discovered (see \cite{zeiler2014visualizing} and \cite{sharif2014cnn}). Pretrained networks are often used in either of two ways:
 
 \begin{enumerate}
 \item feature extraction: a pretrained network is used to extract features for a new problem by passing images forward through its hidden layers and recording a given layer (``CNN code'') as a vector of (obscure) image features.
-\item fine-tuning: a pretrained network recommences training on a new problem from the previous point of convergence, usually at a significantly lower learning rate, and often only on the deepest layers.
+\item fine-tuning: a pretrained network recommences training on a new problem from a saved point of convergence, usually at a significantly lower learning rate, and often only on the upperermost layers.
 \end{enumerate}
 
-The pretraining itself is usually done on a large standard image corpus like ImageNet. The success of these approaches illustrates the universality of the filters learned by deep networks, as general feature extractors for images. Neither approach fits easily into the schema of Figure \ref{fig:transfer_modes}. However, if the target images are similar in resolution and content, for example, the low-level neural activity of earlier layers may be identical to the source dataset, placing it near inductive transfer learning.
+The pretraining itself is usually done on a large standard image corpus like ImageNet. The success of these approaches illustrates the universality of the filters learned by deep networks, as general feature extractors for images. Neither approach fits easily into the schema of Figure \ref{fig:transfer_modes}. However, if for example the target images are similar in resolution and content then the low-level neural activity of earlier layers may be identical as for the source dataset, placing it near inductive transfer learning.
 
-An interesting way to perform transductive transfer with deep learning is with \emph{domain-adversarial neural networks}, which we describe presently.
+An interesting way to perform transductive transfer with deep learning is with \emph{domain-adversarial neural networks}, which we examine presently.
 
 \subsection{Domain-adversarial neural networks}
 \label{subsubsec:adversarial_notes}
@@ -984,70 +985,126 @@ d_\mathcal{H}(D_S^X, D_T^X) = 2\sup_{h \in \mathcal{H}}\Big|P_{\mathbf{x} \sim D
 
 that is, given a source domain (distribution), $D_S^X$ (marginalised by the input variable), and a target domain $D_T^X$, and given a hypothesis class\footnote{Category of classifiers, e.g. linear SVMs.} $\mathcal{H}$, the divergence between the source and target domains with respect to $\mathcal{H}$ is the classifier (here binary--for simplicity) that, proportionally, most classifies the domains into separate classes.
 
-To illustrate, suppose we choose our hypothesis class to be a linear SVM. This class is capable (through choice of the SVM weights) of creating any possible linear hyperplane. Suppose the two domains were linearly separate in the feature space (see Figure \ref{fig:divergence}). It would then be possible to train an SVM to perfectly separate the two, putting one domain fully into the positive class, and the other into the negative class. This would maximise the inner expression of the divergence formula, thus describing a high divergence. Should we have, on the other hand, two highly overlapping domains, any hyperplane cut through the middle of the point cloud would give us a divergence close to 0. Should we cut so as to isolate a few outlier points of a particular class, these would represent only a small proportion of the data, and the probability would also be close to 0. Intuitively, the $\mathcal{H}$-divergence captures the effect nicely.
+To illustrate, suppose we choose our hypothesis class to be a linear SVM. This class is capable (through choice of the SVM weights) of creating any linear hyperplane. Suppose the two domains were linearly separate in the feature space (see Figure \ref{fig:divergence}). It would then be possible to train an SVM to perfectly separate the two, putting one domain fully into the positive class, and the other into the negative class. This would maximise the inner expression of the divergence formula, thus describing a high divergence. Should we have, on the other hand, two highly overlapping domains, any hyperplane cut through the middle of the point cloud would give us a divergence close to $0$. Should we cut so as to isolate a few outlier points of a particular class, these would represent only a small proportion of the data, and the probability would also be close to $0$. Intuitively, the $\mathcal{H}$-divergence captures the effect nicely.
 
 \begin{figure}[!ht]
 \centering
     \subfloat[Low divergence\label{fig:divergence_a}]{
-        \begin{tikzpicture}[>=stealth',x=0.9cm,y=0.9cm]
-            \draw (0,0) rectangle (6,6);
-            % \draw dashed line
-            \draw[dashed]  (1,5.9) -- (4.5,0.1);
-            \draw[dashed]  (0.1,3) -- (5.9, 3);
-            \draw[dashed]  (0.1,0.1) -- (5.9, 5);
 
-            \def\positive{{
-            {4.3,3.3},{4,.8},{3.5,2},{2.2,4.1},{2.8,.8},{3,5.5},{3.2,5},
-            {3.75,2.2},{3,4.2},{5, 0.5},{2.5,3},{4.3,.5}}}
-            % \draw positive dots
-            \foreach \i in {0,...,10} {
-              \pgfmathparse{\positive[\i][0]}\let \x \pgfmathresult;
-              \pgfmathparse{\positive[\i][1]}\let \y \pgfmathresult;
-              \fill[black] (\x,\y) circle (2pt);
-            }
-            \def\negative{{
-            {3.75,3},{2.5,5},{1.6,1.6},{4.5,5.2},{2.5,3.7},{3.9,4.7},{3,2.7},
-            {3.5,1.2},{4.8,.9}}}
-            % \draw negative dots
-            \foreach \i in {0,...,8} {
-              \pgfmathparse{\negative[\i][0]}\let \x \pgfmathresult;
-              \pgfmathparse{\negative[\i][1]}\let \y \pgfmathresult;
-              \draw[black] (\x,\y) circle (3pt);
-            }
-            \end{tikzpicture}
+
+\tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-0.9,xscale=0.9]
+%uncomment if require: \path (0,300); %set diagram left start at 0, and has height of 300
+
+%Shape: Square [id:dp5558076462431013] 
+\draw   (10,10) -- (220,10) -- (220,220) -- (10,220) -- cycle ;
+%Shape: Circle [id:dp0019324288406201706] 
+\draw   (170,67.5) .. controls (170,66.12) and (171.12,65) .. (172.5,65) .. controls (173.88,65) and (175,66.12) .. (175,67.5) .. controls (175,68.88) and (173.88,70) .. (172.5,70) .. controls (171.12,70) and (170,68.88) .. (170,67.5) -- cycle ;
+%Shape: Circle [id:dp8776822293891934] 
+\draw   (165,142.5) .. controls (165,141.12) and (166.12,140) .. (167.5,140) .. controls (168.88,140) and (170,141.12) .. (170,142.5) .. controls (170,143.88) and (168.88,145) .. (167.5,145) .. controls (166.12,145) and (165,143.88) .. (165,142.5) -- cycle ;
+%Shape: Circle [id:dp3879325108416569] 
+\draw   (45,77.5) .. controls (45,76.12) and (46.12,75) .. (47.5,75) .. controls (48.88,75) and (50,76.12) .. (50,77.5) .. controls (50,78.88) and (48.88,80) .. (47.5,80) .. controls (46.12,80) and (45,78.88) .. (45,77.5) -- cycle ;
+%Shape: Circle [id:dp6330706823869785] 
+\draw   (165,112.5) .. controls (165,111.12) and (166.12,110) .. (167.5,110) .. controls (168.88,110) and (170,111.12) .. (170,112.5) .. controls (170,113.88) and (168.88,115) .. (167.5,115) .. controls (166.12,115) and (165,113.88) .. (165,112.5) -- cycle ;
+%Shape: Circle [id:dp4028415707925347] 
+\draw   (100,157.5) .. controls (100,156.12) and (101.12,155) .. (102.5,155) .. controls (103.88,155) and (105,156.12) .. (105,157.5) .. controls (105,158.88) and (103.88,160) .. (102.5,160) .. controls (101.12,160) and (100,158.88) .. (100,157.5) -- cycle ;
+%Shape: Circle [id:dp60726876091463] 
+\draw   (110,182.5) .. controls (110,181.12) and (111.12,180) .. (112.5,180) .. controls (113.88,180) and (115,181.12) .. (115,182.5) .. controls (115,183.88) and (113.88,185) .. (112.5,185) .. controls (111.12,185) and (110,183.88) .. (110,182.5) -- cycle ;
+%Shape: Circle [id:dp12545971588594684] 
+\draw   (145,177.5) .. controls (145,176.12) and (146.12,175) .. (147.5,175) .. controls (148.88,175) and (150,176.12) .. (150,177.5) .. controls (150,178.88) and (148.88,180) .. (147.5,180) .. controls (146.12,180) and (145,178.88) .. (145,177.5) -- cycle ;
+%Shape: Circle [id:dp16285501336122743] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (80,92.5) .. controls (80,91.12) and (81.12,90) .. (82.5,90) .. controls (83.88,90) and (85,91.12) .. (85,92.5) .. controls (85,93.88) and (83.88,95) .. (82.5,95) .. controls (81.12,95) and (80,93.88) .. (80,92.5) -- cycle ;
+%Shape: Circle [id:dp5946820032093821] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (85,182.5) .. controls (85,181.12) and (86.12,180) .. (87.5,180) .. controls (88.88,180) and (90,181.12) .. (90,182.5) .. controls (90,183.88) and (88.88,185) .. (87.5,185) .. controls (86.12,185) and (85,183.88) .. (85,182.5) -- cycle ;
+%Shape: Circle [id:dp9032042730409021] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (130,72.5) .. controls (130,71.12) and (131.12,70) .. (132.5,70) .. controls (133.88,70) and (135,71.12) .. (135,72.5) .. controls (135,73.88) and (133.88,75) .. (132.5,75) .. controls (131.12,75) and (130,73.88) .. (130,72.5) -- cycle ;
+%Shape: Circle [id:dp8342612951426825] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (165,97.5) .. controls (165,96.12) and (166.12,95) .. (167.5,95) .. controls (168.88,95) and (170,96.12) .. (170,97.5) .. controls (170,98.88) and (168.88,100) .. (167.5,100) .. controls (166.12,100) and (165,98.88) .. (165,97.5) -- cycle ;
+%Shape: Circle [id:dp9563073421246634] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (130,47.5) .. controls (130,46.12) and (131.12,45) .. (132.5,45) .. controls (133.88,45) and (135,46.12) .. (135,47.5) .. controls (135,48.88) and (133.88,50) .. (132.5,50) .. controls (131.12,50) and (130,48.88) .. (130,47.5) -- cycle ;
+%Shape: Circle [id:dp8396513630724004] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (75,147.5) .. controls (75,146.12) and (76.12,145) .. (77.5,145) .. controls (78.88,145) and (80,146.12) .. (80,147.5) .. controls (80,148.88) and (78.88,150) .. (77.5,150) .. controls (76.12,150) and (75,148.88) .. (75,147.5) -- cycle ;
+%Shape: Circle [id:dp8510233692586899] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (40,102.5) .. controls (40,101.12) and (41.12,100) .. (42.5,100) .. controls (43.88,100) and (45,101.12) .. (45,102.5) .. controls (45,103.88) and (43.88,105) .. (42.5,105) .. controls (41.12,105) and (40,103.88) .. (40,102.5) -- cycle ;
+%Straight Lines [id:da5223740100561893] 
+\draw  [dash pattern={on 4.5pt off 4.5pt}]  (10,130) -- (220,90) ;
+%Shape: Circle [id:dp9343470212314228] 
+\draw   (80,52.5) .. controls (80,51.12) and (81.12,50) .. (82.5,50) .. controls (83.88,50) and (85,51.12) .. (85,52.5) .. controls (85,53.88) and (83.88,55) .. (82.5,55) .. controls (81.12,55) and (80,53.88) .. (80,52.5) -- cycle ;
+%Shape: Circle [id:dp664963764535316] 
+\draw   (30,132.5) .. controls (30,131.12) and (31.12,130) .. (32.5,130) .. controls (33.88,130) and (35,131.12) .. (35,132.5) .. controls (35,133.88) and (33.88,135) .. (32.5,135) .. controls (31.12,135) and (30,133.88) .. (30,132.5) -- cycle ;
+%Shape: Circle [id:dp6422817227649901] 
+\draw   (125,102.5) .. controls (125,101.12) and (126.12,100) .. (127.5,100) .. controls (128.88,100) and (130,101.12) .. (130,102.5) .. controls (130,103.88) and (128.88,105) .. (127.5,105) .. controls (126.12,105) and (125,103.88) .. (125,102.5) -- cycle ;
+%Shape: Circle [id:dp2874319397379682] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (180,152.5) .. controls (180,151.12) and (181.12,150) .. (182.5,150) .. controls (183.88,150) and (185,151.12) .. (185,152.5) .. controls (185,153.88) and (183.88,155) .. (182.5,155) .. controls (181.12,155) and (180,153.88) .. (180,152.5) -- cycle ;
+%Shape: Circle [id:dp709962297517591] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (135,147.5) .. controls (135,146.12) and (136.12,145) .. (137.5,145) .. controls (138.88,145) and (140,146.12) .. (140,147.5) .. controls (140,148.88) and (138.88,150) .. (137.5,150) .. controls (136.12,150) and (135,148.88) .. (135,147.5) -- cycle ;
+%Straight Lines [id:da23733964068601499] 
+\draw  [dash pattern={on 4.5pt off 4.5pt}]  (50,220) -- (110,10) ;
+%Straight Lines [id:da5383640970534714] 
+\draw  [dash pattern={on 4.5pt off 4.5pt}]  (160,220) -- (60,10) ;
+
+
+
+
+\end{tikzpicture}
+
+
     }
     \qquad
     \subfloat[High divergence\label{fig:divergence_b}]{
-        \begin{tikzpicture}[>=stealth',x=0.9cm,y=0.9cm]
-            \draw (0,0) rectangle (6,6);
-            % \draw line
-%            \draw[color=red,line width=2pt] (1.5,5.9) -- (5,0.1);
-%            % \draw dashed line
-%            \draw[dashed]  (1,5.9) -- (4.5,0.1);
-%            \draw[dashed]  (2,5.9) -- (5.5,0.1);
-			\draw[dashed]  (1.5,5.9) -- (5,0.1);
-%
-            \def\positive{{
-            {2.3,3.3},{4,.8},{1.5,2},{0.2,4.1},{1.8,.8},{1,5.5},{1.2,5},
-            {0.75,.2},{2,4.2},{5, 0.5},{1.5,3},{2.3,.5}}}
-            % \draw positive dots
-            \foreach \i in {0,...,10} {
-              \pgfmathparse{\positive[\i][0]}\let \x \pgfmathresult;
-              \pgfmathparse{\positive[\i][1]}\let \y \pgfmathresult;
-              \fill[black] (\x,\y) circle (2pt);
-            }
-            \def\negative{{
-            {3.75,3},{3.5,5},{4.6,1.6},{4.5,5.2},{5.5,3.7},{3.9,4.7},{5,2.7},
-            {3.5,4.2},{5.8,.9}}}
-            % \draw negative dots
-            \foreach \i in {0,...,8} {
-              \pgfmathparse{\negative[\i][0]}\let \x \pgfmathresult;
-              \pgfmathparse{\negative[\i][1]}\let \y \pgfmathresult;
-              \draw[black] (\x,\y) circle (3pt);
-            }
-        \end{tikzpicture}
+
+
+\tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-0.9,xscale=0.9]
+%uncomment if require: \path (0,300); %set diagram left start at 0, and has height of 300
+
+%Shape: Square [id:dp5558076462431013] 
+\draw   (10,10) -- (220,10) -- (220,220) -- (10,220) -- cycle ;
+%Shape: Circle [id:dp0019324288406201706] 
+\draw   (55,112.5) .. controls (55,111.12) and (56.12,110) .. (57.5,110) .. controls (58.88,110) and (60,111.12) .. (60,112.5) .. controls (60,113.88) and (58.88,115) .. (57.5,115) .. controls (56.12,115) and (55,113.88) .. (55,112.5) -- cycle ;
+%Shape: Circle [id:dp8776822293891934] 
+\draw   (60,157.5) .. controls (60,156.12) and (61.12,155) .. (62.5,155) .. controls (63.88,155) and (65,156.12) .. (65,157.5) .. controls (65,158.88) and (63.88,160) .. (62.5,160) .. controls (61.12,160) and (60,158.88) .. (60,157.5) -- cycle ;
+%Shape: Circle [id:dp3879325108416569] 
+\draw   (40,77.5) .. controls (40,76.12) and (41.12,75) .. (42.5,75) .. controls (43.88,75) and (45,76.12) .. (45,77.5) .. controls (45,78.88) and (43.88,80) .. (42.5,80) .. controls (41.12,80) and (40,78.88) .. (40,77.5) -- cycle ;
+%Shape: Circle [id:dp6330706823869785] 
+\draw   (90,127.5) .. controls (90,126.12) and (91.12,125) .. (92.5,125) .. controls (93.88,125) and (95,126.12) .. (95,127.5) .. controls (95,128.88) and (93.88,130) .. (92.5,130) .. controls (91.12,130) and (90,128.88) .. (90,127.5) -- cycle ;
+%Shape: Circle [id:dp4028415707925347] 
+\draw   (100,152.5) .. controls (100,151.12) and (101.12,150) .. (102.5,150) .. controls (103.88,150) and (105,151.12) .. (105,152.5) .. controls (105,153.88) and (103.88,155) .. (102.5,155) .. controls (101.12,155) and (100,153.88) .. (100,152.5) -- cycle ;
+%Shape: Circle [id:dp60726876091463] 
+\draw   (115,187.5) .. controls (115,186.12) and (116.12,185) .. (117.5,185) .. controls (118.88,185) and (120,186.12) .. (120,187.5) .. controls (120,188.88) and (118.88,190) .. (117.5,190) .. controls (116.12,190) and (115,188.88) .. (115,187.5) -- cycle ;
+%Shape: Circle [id:dp12545971588594684] 
+\draw   (140,172.5) .. controls (140,171.12) and (141.12,170) .. (142.5,170) .. controls (143.88,170) and (145,171.12) .. (145,172.5) .. controls (145,173.88) and (143.88,175) .. (142.5,175) .. controls (141.12,175) and (140,173.88) .. (140,172.5) -- cycle ;
+%Shape: Circle [id:dp16285501336122743] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (90,37.5) .. controls (90,36.12) and (91.12,35) .. (92.5,35) .. controls (93.88,35) and (95,36.12) .. (95,37.5) .. controls (95,38.88) and (93.88,40) .. (92.5,40) .. controls (91.12,40) and (90,38.88) .. (90,37.5) -- cycle ;
+%Shape: Circle [id:dp5946820032093821] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (90,67.5) .. controls (90,66.12) and (91.12,65) .. (92.5,65) .. controls (93.88,65) and (95,66.12) .. (95,67.5) .. controls (95,68.88) and (93.88,70) .. (92.5,70) .. controls (91.12,70) and (90,68.88) .. (90,67.5) -- cycle ;
+%Shape: Circle [id:dp9032042730409021] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (130,72.5) .. controls (130,71.12) and (131.12,70) .. (132.5,70) .. controls (133.88,70) and (135,71.12) .. (135,72.5) .. controls (135,73.88) and (133.88,75) .. (132.5,75) .. controls (131.12,75) and (130,73.88) .. (130,72.5) -- cycle ;
+%Shape: Circle [id:dp8342612951426825] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (160,97.5) .. controls (160,96.12) and (161.12,95) .. (162.5,95) .. controls (163.88,95) and (165,96.12) .. (165,97.5) .. controls (165,98.88) and (163.88,100) .. (162.5,100) .. controls (161.12,100) and (160,98.88) .. (160,97.5) -- cycle ;
+%Shape: Circle [id:dp9563073421246634] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (130,47.5) .. controls (130,46.12) and (131.12,45) .. (132.5,45) .. controls (133.88,45) and (135,46.12) .. (135,47.5) .. controls (135,48.88) and (133.88,50) .. (132.5,50) .. controls (131.12,50) and (130,48.88) .. (130,47.5) -- cycle ;
+%Shape: Circle [id:dp8396513630724004] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (145,117.5) .. controls (145,116.12) and (146.12,115) .. (147.5,115) .. controls (148.88,115) and (150,116.12) .. (150,117.5) .. controls (150,118.88) and (148.88,120) .. (147.5,120) .. controls (146.12,120) and (145,118.88) .. (145,117.5) -- cycle ;
+%Shape: Circle [id:dp8510233692586899] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (180,62.5) .. controls (180,61.12) and (181.12,60) .. (182.5,60) .. controls (183.88,60) and (185,61.12) .. (185,62.5) .. controls (185,63.88) and (183.88,65) .. (182.5,65) .. controls (181.12,65) and (180,63.88) .. (180,62.5) -- cycle ;
+%Straight Lines [id:da5223740100561893] 
+\draw  [dash pattern={on 4.5pt off 4.5pt}]  (10,10) -- (220,220) ;
+%Shape: Circle [id:dp9343470212314228] 
+\draw   (60,192.5) .. controls (60,191.12) and (61.12,190) .. (62.5,190) .. controls (63.88,190) and (65,191.12) .. (65,192.5) .. controls (65,193.88) and (63.88,195) .. (62.5,195) .. controls (61.12,195) and (60,193.88) .. (60,192.5) -- cycle ;
+%Shape: Circle [id:dp664963764535316] 
+\draw   (35,132.5) .. controls (35,131.12) and (36.12,130) .. (37.5,130) .. controls (38.88,130) and (40,131.12) .. (40,132.5) .. controls (40,133.88) and (38.88,135) .. (37.5,135) .. controls (36.12,135) and (35,133.88) .. (35,132.5) -- cycle ;
+%Shape: Circle [id:dp6422817227649901] 
+\draw   (80,172.5) .. controls (80,171.12) and (81.12,170) .. (82.5,170) .. controls (83.88,170) and (85,171.12) .. (85,172.5) .. controls (85,173.88) and (83.88,175) .. (82.5,175) .. controls (81.12,175) and (80,173.88) .. (80,172.5) -- cycle ;
+%Shape: Circle [id:dp2874319397379682] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (180,112.5) .. controls (180,111.12) and (181.12,110) .. (182.5,110) .. controls (183.88,110) and (185,111.12) .. (185,112.5) .. controls (185,113.88) and (183.88,115) .. (182.5,115) .. controls (181.12,115) and (180,113.88) .. (180,112.5) -- cycle ;
+%Shape: Circle [id:dp709962297517591] 
+\draw  [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ,fill opacity=1 ] (180,147.5) .. controls (180,146.12) and (181.12,145) .. (182.5,145) .. controls (183.88,145) and (185,146.12) .. (185,147.5) .. controls (185,148.88) and (183.88,150) .. (182.5,150) .. controls (181.12,150) and (180,148.88) .. (180,147.5) -- cycle ;
+\end{tikzpicture}
     }
-    \caption{Overlapping domains (a) and divergent domains separated by a linear decision boundary (b). Modified from http://blog.pengyifan.com/tikz-example-kernel-trick/.}
+    \caption{Overlapping domains (a) and divergent domains separated by a linear decision boundary (b).}
     \label{fig:divergence}
 \end{figure}
 
@@ -1055,7 +1112,7 @@ To illustrate, suppose we choose our hypothesis class to be a linear SVM. This c
 Conveniently, it is possible to compute a consistent estimate of the $\mathcal{H}$-divergence using finite data with the \emph{empirical} $\mathcal{H}$-divergence,
 
 \begin{equation}
-\hat{d}_\mathcal{H}(S, T) = 2\Bigg(1 - \min_{h \in \mathcal{H}}\bigg[\frac{1}{n}\sum_{i=1}^n\mathbf{1}[h(\mathbf{x}_i) = 0] + \frac{1}{n'}\sum_{i=n+1}^N\mathbf{1}[h(\mathbf{x}_i) = 1]\bigg]\Bigg)
+\hat{d}_\mathcal{H}(S, T) = 2\Bigg(1 - \min_{h \in \mathcal{H}}\bigg[\frac{1}{n}\sum_{i=1}^n\mathbf{1}[h(\mathbf{x}_i) = 0] + \frac{1}{n'}\sum_{i=n+1}^N\mathbf{1}[h(\mathbf{x}_i) = 1]\bigg]\Bigg),
 \end{equation}
 
 for samples, $S \sim D_S^X$ of size $n$ and $T \sim D_T^X$ of size $n'$. For convenience, these are indexed from $1\to n$ and $(n + 1) \to N$, where $N = n + n'$. Though this may be hard to compute precisely in general, we can approximate this simply by training a classifier of the class $\mathcal{H}$ on the constructed dataset, $U = \{(\mathbf{x}, 0) : \mathbf{x} \in S\} \cup \{(\mathbf{x}, 1) : \mathbf{x} \in T\}$, that is, a classifier to differentiate between the domains. The estimated generalisation error, $\epsilon$ of this classifier could then be used to approximate the empirical domain divergence as $2(1 - 2\epsilon)$.
@@ -1063,17 +1120,17 @@ for samples, $S \sim D_S^X$ of size $n$ and $T \sim D_T^X$ of size $n'$. For con
 \cite{ajakan2014domain} first formulate a DANN as a learning model of the form,
 
 \begin{equation}
-E(\theta_f, \theta_d, \theta_y) = \frac{1}{n}\sum_{i=1}^n\mathcal{L}_y^i(G_y(G_f(\mathbf{x} ; \theta_f) ; \theta_y), y_i) + \lambda R(\theta_f, \theta_d)
+E(\theta_f, \theta_d, \theta_y) = \frac{1}{n}\sum_{i=1}^n\mathcal{L}_y^i(G_y(G_f(\mathbf{x} ; \theta_f) ; \theta_y), y_i) + \lambda R(\theta_f, \theta_d),
 \end{equation}
 
-where the $G_f$ component acts as a feature extractor, and $G_y$ is a classifier. These may have any neural architecture, shallow, deep, convolutional, etc. Recalling that the target data is unlabelled, they propose to define the regulariser of this model as,
+where the $G_f$ component acts as a feature extractor, and $G_y$ is a classifier. These may have any neural architecture, shallow, deep, or convolutional. Recalling that the target data is unlabelled, they propose to define the regulariser of this model as,
 
 
 \begin{equation}
-R(\theta_f, \theta_d) = -\frac{1}{n}\sum_{i=1}^n\mathcal{L}_d^i(\theta_d, d_i) -\frac{1}{n'}\sum_{i=n+1}^N\mathcal{L}_d^i(\theta_d, d_i)
+R(\theta_f, \theta_d) = -\frac{1}{n}\sum_{i=1}^n\mathcal{L}_d^i(\theta_d, d_i) -\frac{1}{n'}\sum_{i=n+1}^N\mathcal{L}_d^i(\theta_d, d_i),
 \end{equation}
 
-where $\mathcal{L}_d^i(\theta_d, d^i) = \mathcal{L}(G_d(G_f(\theta_f) ; \theta_d), d_i), d_i \in \{0, 1\}$. Thus formulated, we have a loss maximising the negative of the minimisation term in the divergence formula. Therefore, adding this regulariser to the objective function, and maximising the objective with respect to its parameters, $\theta_d$, give a worse overall loss. At the same time, however, the feature parameters, $\theta_f$, which are trained to minimise the objective, are chosen to minimise this maximisation of the regulariser by the divergence parameters, $\theta_d$, thus maximising the minimising component of the divergence, thereby minimising the divergence. The feature parameters therefore play a dual role in both minimising classification loss, and minimising divergence (equivalently, maximising discrimination error), \emph{adversarially} to the domain classifier. This promotes domain invariant features. Formally, we have,
+where $\mathcal{L}_d^i(\theta_d, d^i) = \mathcal{L}(G_d(G_f(\theta_f) ; \theta_d), d_i), d_i \in \{0, 1\}$. Thus formulated, one has a loss maximising the negative of the minimisation term in the divergence formula. Therefore, adding this regulariser to the objective function, and maximising the objective with respect to its parameters, $\theta_d$, gives a worse overall loss. At the same time, however, the feature parameters, $\theta_f$, which are trained to minimise the objective, are chosen to minimise this maximisation of the regulariser by the divergence parameters, $\theta_d$, thus maximising the minimising component of the divergence, thereby minimising the divergence. The feature parameters therefore play a dual role in both minimising classification loss, and minimising divergence (equivalently, maximising discrimination error), \emph{adversarially} to the domain classifier. This promotes domain invariant features. Formally, we have,
 
 \begin{align}
 (\theta_f, \theta_y) &= \arg\min_{\theta_f, \theta_y} E(\theta_f, \theta_y, \hat{\theta}_d) \notag \\
@@ -1088,23 +1145,23 @@ which can be found as a saddle point of the update steps,
 \theta_d &\leftarrow \theta_f - \mu\frac{\partial \mathcal{L}_d^i}{\partial\theta_d}
 \end{align}
 
-Note that $\theta_f$ is updated to minimise the classification loss, but maximise the domain classification loss. This is called the adversarial step. The main contribution of \cite{ganin2014unsupervised} is to apply this to deeper architectures (in particular, convolutional), and to introduce a ``gradient reversal layer'' to enable a smooth implementation without altering the internal implementations of gradient descent (this still assumes that the local gradients can be specified arbitrarily). This is achieved with the pseudo-function,
+Note that $\theta_f$ is updated to minimise the classification loss, but maximise the domain classification loss. This is called the \emph{adversarial step}. The main contribution of \cite{ganin2014unsupervised} is to apply this to deeper architectures (in particular, convolutional), and to introduce a ``gradient reversal layer'' to enable a smooth implementation without altering the internal implementations of gradient descent (this still assumes that the local gradients can be specified arbitrarily) of deep learning frameworks. This is achieved with the pseudo-function,
 
 \begin{equation}
-R_\lambda(\mathbf{x}) = \mathbf{x}
+R_\lambda(\mathbf{x}) = \mathbf{x},
 \end{equation}
 
 whose gradient is hard-coded as,
 
 \begin{equation}
-\frac{\partial R_\lambda}{\partial\mathbf{x}} = -\lambda\mathbf{I}
+\frac{\partial R_\lambda}{\partial\mathbf{x}} = -\lambda\mathbf{I}.
 \end{equation}
 
 This pseudo-layer is inserted between the feature extractor and the domain classifier in the model formulation. It should be emphasised that this is not a mathematical trick, but rather an implementation hack. The gradient reversal layer is easy to implement in all the major deep learning frameworks.
 
 \section{Generative adversarial networks}
-
-Generative adversarial networks (GANs) (\cite{goodfellow2014generative}) is a learning framework that trains a generator model to be capable of sampling new data from a data distribution (in particular, images), learnt (implicitly) from a training set. GANs compete with variational autoencoders (\cite{kingma2013auto}) and, more recently, autoregressive models (\cite{oord2016pixel}) for image generation. We select GANs as the primary tool for our work in image synthesis in this dissertation, given their rich literature and versatility (as we shall soon see).
+\label{sec:gans_definition}
+Generative adversarial networks (GANs) (\cite{goodfellow2014generative}) is a learning framework that trains a generator model to be capable of sampling new data from a data distribution (in particular, images), learnt (implicitly) from a training set. GANs compete with variational autoencoders (\cite{kingma2013auto}) and, more recently, autoregressive models (\cite{oord2016pixel}) for image generation. GANs are arguably a more mature and versatile learning paradigm, however.
 
 \begin{figure}
 \centering
@@ -1139,7 +1196,7 @@ Generative adversarial networks (GANs) (\cite{goodfellow2014generative}) is a le
 % Text Node
 \draw (438,152.4) node [anchor=north west][inner sep=0.75pt]    {$real/fake$};
 \end{tikzpicture}
-\caption{A GAN trains a generator network $G$ to fool a discriminator network $D$ in emitting counterfeit images $\mathbf{x}$ by transforming noise input $\mathbf{z}$. In order to do so, $G$ must (implicitly) learn the data-generating distribution, $p_{data}$.}
+\caption{A GAN trains a generator network $G$ to fool a discriminator network $D$ in emitting counterfeit images $\mathbf{x} \sim p_g(\mathbf{x})$ by transforming noise input $\mathbf{z}$. In order to do so, $G$ must (implicitly) learn the data-generating distribution, $p_{data}$.}
 \label{fig:gan_schematic}
 \end{figure}
 
@@ -1158,11 +1215,11 @@ D : X \to \{0, 1\},
 that is, a mapping from data point to binary value. $D$ aims to minimise its rate of failure in discerning true data from ``fake'' data sampled from the the generator, which aims to maximise the error made by the discriminator,
 
 \begin{equation}
-\max_G\min_D\mathcal{L}_{GAN}(D, G) = \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})}[\log D(\mathbf{x})] + \mathbb{E}_{\mathbf{z} \sim p(\mathbf{z})}[\log(1 - D(G(\mathbf{z})))]
+\max_G\min_D\mathcal{L}_{GAN}(D, G) = \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})}[\log D(\mathbf{x})] + \mathbb{E}_{\mathbf{z} \sim p(\mathbf{z})}[\log(1 - D(G(\mathbf{z})))].
 \label{eq:gan_objective}
 \end{equation}
 
-The stationary point of Equation \ref{eq:gan_objective} is a \emph{Nash equilibrium} (a saddle point) between the two objectives. \cite{goodfellow2014generative} guarantee that the distribution implicitly defined\footnote{GANs are implicit generative models, in contrast to explicit models such as VAEs, which model the probabilities directly. GANs serve as an sample-emitting oracle emulating the true distribution.} by $G$, $p_g = p_{\text{data}}$ for $G^*$ at (global) optimality, and 
+The stationary point of Equation \ref{eq:gan_objective} is a \emph{Nash equilibrium} (a saddle point) between the two objectives. \cite{goodfellow2014generative} guarantee that the distribution implicitly defined\footnote{GANs are implicit generative models, in contrast to explicit models such as VAEs, which model the probabilities directly. GANs serve as an sample-emitting oracle emulating the true distribution.} by $G$, $p_g$ is equal to $p_{\text{data}}$ for $G^*$ at (global) optimality and,
 
 \begin{equation}
 D^*(\mathbf{x}) = \frac{p_{\text{data}}(\mathbf{x})}{p_{\text{data}}(\mathbf{x}) + p_{g}(\mathbf{x})},
@@ -1170,17 +1227,17 @@ D^*(\mathbf{x}) = \frac{p_{\text{data}}(\mathbf{x})}{p_{\text{data}}(\mathbf{x})
 
 where $p_{\text{data}}$ is the data-generating distribution. In practice, GANs are trained by backpropagation with alternating gradient descent between $D$ and $G$. The weights of $D$ are frozen while propagating the errors back through $D$ to $G$.
 
-GAN architecture design must strike a balance between a generator expressive enough to approximate the data distribution, and a discriminator powerful enough to hold it to the task. GANs are chronically afflicted with a phenomenon known as \emph{mode collapse}. Mode collapse is the condition in which the generator ``collapses'' to generating few or even a unique output, regardless of the noise input $\mathbf{z}$. \cite{metz2016unrolled} differentiate two varieties of mode collapse: \emph{discrete mode collapse}, where the generator collapses to a subset of data modes (easily detected); and the more insidious \emph{manifold collapse}, where the generator collapses to a subspace of the data distribution. They reason that mode collapse originates from the fact that in each iteration of training, the generator is impelled towards a delta function at the mode considered most ``real'' by the discriminator. The discriminator responds by lowering the probability of this mode, leading to oscillations in generation. The ``unrolled'' GAN training approach that they advocate mitigates this tendency by informing the generator in advance of the discriminator's response to its prospective weight updates.
+GAN architecture design must strike a balance between a generator expressive enough to approximate the data distribution, and a discriminator powerful enough to hold it to the task. GANs are afflicted with a phenomenon known as \emph{mode collapse}. Mode collapse is the condition in which the generator ``collapses'' to generating few or even a unique output, regardless of the noise input $\mathbf{z}$. \cite{metz2016unrolled} differentiate two varieties of mode collapse: \emph{discrete mode collapse}, where the generator collapses to a subset of data modes (easily detected); and the more insidious \emph{manifold collapse}, where the generator collapses to a subspace of the data distribution. They reason that mode collapse originates from the fact that in each iteration of training, the generator is impelled towards a delta function at the mode considered most ``real'' by the discriminator. The discriminator responds by lowering the probability of this mode, leading to oscillations in training. The ``unrolled'' GAN training approach that they advocate mitigates this tendency by informing the generator in advance of the discriminator's response to its prospective weight updates.
 
-Another promising attempt to attenuate the mode collapse problem is to replace the Jensen-Shannon divergence loss function with the Earth Mover (EM) or Wasserstein-1 distance. Such is the strategy of Wasserstein GANs (WGANs). Intuitively, the EM distance measures a distance between two distributions. We can write the EM distance as the quantity $\mathbb{E}_{x \sim \mathbb{P}_r}[f_w(x)] - \mathbb{E}_{z\sim p(z)}[f_w(g_{\theta}(z))]$ maximised by choice of $f_w$ (discriminator). The goal is then to minimise this distance through optimisation of the generator. The training algorithm is very similar to GANs. WGANs are more stable, as the substituted loss function allows the discriminator to be trained to optimality. This greatly mitigates the mode collapse problem. Nevertheless, more subtle forms of partial mode collapse remain a recurrent problem for GANs. As a bonus, the discriminator loss (estimated EM distance) becomes meaningful during training, interpretable as image sample quality, rendering the implementation and fine-tuning of WGANs far easier. Despite the merits of WGANs, we do not have recourse to them in this dissertation.
+Another promising attempt to attenuate the mode collapse problem is to replace the Jensen-Shannon divergence loss function with the Earth Mover (EM) or Wasserstein-1 distance. Such is the strategy of Wasserstein GANs (WGANs). Intuitively, the EM distance measures a distance between two distributions. One can write the EM distance as the quantity $\mathbb{E}_{x \sim \mathbb{P}_r}[f_w(x)] - \mathbb{E}_{z\sim p(z)}[f_w(g_{\theta}(z))]$ maximised by choice of $f_w$ (discriminator). The goal is then to minimise this distance through optimisation of the generator. The training algorithm is very similar to GANs. WGANs seem to be more stable, as the substituted loss function allows the discriminator to be trained to optimality. This greatly mitigates the mode collapse problem. Nevertheless, more subtle forms of partial mode collapse remain a recurrent problem for GANs. As a bonus, the discriminator loss (estimated EM distance) becomes meaningful during training, interpretable as image sample quality, rendering the implementation and fine-tuning of WGANs far easier.
 
 \subsection{Deep convolutional GANs}
-
-\cite{radford2015unsupervised} first succeeded in training more powerful, high-resolution GANs, by identifying a set of design principles: replacing pooling layers with strided convolutions; removing fully-connected layers (apart from the first layer of the generator); using batch normalisation after all but the last layer; using a $\tanh$ activation at the end of the generator (and ReLU everywhere else); and using LeakyReLU activations everywhere in the discriminator. Deep convolutional GANs (DC-GANs) represent a vast improvement over the original fully-connected GANs.
+\label{subsec:dcgan_definition}
+\cite{radford2015unsupervised} first succeeded in training more powerful, high-resolution GANs, by identifying a set of design principles: replacing pooling layers with strided convolutions; removing fully-connected layers (apart from the first layer of the generator); using batch normalisation after all but the last layer; using a $\tanh$ activation at the end of the generator (and ReLU everywhere else); and using LeakyReLU activations everywhere in the discriminator. For image data, deep convolutional GANs (DCGANs) represent a vast improvement over the original fully-connected GANs.
 
 \subsection{Conditional GANs}
-
-\cite{mirza2014conditional} present a simple extension to GANs allowing for control over the data generating process. One simply includes an additional input $\mathbf{y} \sim Y$ (for example, class information), to obtain conditional GANs (cGANs). That is, now the generator is conditional,
+\label{subsec:conditional_gans_definition}
+\cite{mirza2014conditional} present a simple extension to GANs allowing for control over the data generating process. One simply includes an additional input $\mathbf{y} \sim Y$ (for example, class information), to obtain conditional GANs (CGANs). That is, now the generator is conditional,
 
 \begin{equation}
 G : Z, Y \to X,
@@ -1192,18 +1249,17 @@ as is the discriminator,
 G : X, Y \to \{0, 1\},
 \end{equation}
 
-and the cGAN is trained against the objective,
+and the CGAN is trained against the objective,
 
-\begin{align}\mathcal{L}_{cGAN}(D, G) = \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})}[\log D(\mathbf{x} | \mathbf{y})] + \mathbb{E}_{\mathbf{z} \sim p(\mathbf{z})}[\log(1 - D(G(\mathbf{z} | \mathbf{y})))]
+\begin{align}\mathcal{L}_{CGAN}(D, G) = \mathbb{E}_{\mathbf{x} \sim p(\mathbf{x})}[\log D(\mathbf{x} | \mathbf{y})] + \mathbb{E}_{\mathbf{z} \sim p(\mathbf{z})}[\log(1 - D(G(\mathbf{z} | \mathbf{y})))].
 \end{align}
 
-\cite{mirza2014conditional} does not offer so much as an intuition as to why conditional GANs works (seemingly the article was written in a hurry), but it can be instructive to consider. As $D$ learns to associate conditional information such as object class with the ground truth images, it will declare ``fake'' any image emitted by $G$ not conforming to the condition, no matter the quality of the image. If $G$ is to succeed, it will be forced to generate images in adherence to the condition. The outcome of successful training is therefore a generator that can, for example, synthesise an authentic-looking image of a desired class on demand.
+\cite{mirza2014conditional} do not offer so much as an intuition as to why conditional GANs works, but it can be an instructive thing to consider. As $D$ learns to associate conditional information such as object class with the ground truth images, it will declare ``fake'' any image emitted by $G$ not conforming to the condition, no matter the quality of the image. If $G$ is to succeed, it will be forced to generate images in adherence to the condition. The outcome of successful training is therefore a generator that can, for example, synthesise an authentic-looking image of a desired class on demand.
 
-The implementation of cGANs is a straightforward modification to GANs: the conditional information is concatenated to the typical usual inputs of both $D$ and $G$ and fed to further hidden layers. A DCGAN discriminator may, however, concatenate the conditional information after its convolutional layers.
+The implementation of CGANs is a straightforward modification to GANs. The conditional information is concatenated to the standard inputs of both $D$ and $G$ and fed through to their hidden layers. A DCGAN discriminator may, however, concatenate the conditional information after its convolutional layers.
 
 \subsection{Assorted GANs}
 
-The success of GANs have led to many interesting results in recent years. Image-to-image translation has been achieved with \texttt{pix2pix} (\cite{isola2017image}), a GAN conditioned on a full image serving as a blueprint for the generated image. Such models are capable of an endless variety of applications, including segmentation and image colourisation. CycleGANs (\cite{zhu2017unpaired}) achieve \emph{unpaired} image-to-image translation, learning to map between image domains in an unsupervised way. Application include style transfer. RecycleGANs (\cite{bansal2018recycle}) achieve the same for video-to-video retargeting.
+The success of GANs have led to many interesting results in recent years. Image-to-image translation has been achieved with \texttt{pix2pix} (\cite{isola2017image}), a GAN conditioned on a full image serving as a blueprint for the generated image. Such models are capable of an endless variety of applications, including segmentation and image colourisation. CycleGANs (\cite{zhu2017unpaired}) achieve \emph{unpaired} image-to-image translation, learning to map between image domains in an unsupervised way. Applications include style transfer. RecycleGANs (\cite{bansal2018recycle}) achieve the same for video-to-video retargeting.
 
-Elsewhere, progressive growing of GANs (\cite{karras2017progressive}) produce high resolution outputs (up to $1024\times1024$ pixels). Here, training is done in stages, beginning at low resolutions ($4\times4$), and doubling the resolution at intervals. This is done simply by adding new layers to the generator and discriminator, which remain symmetric throughout training. Thus, the GAN learns global structures first at low resolution, progressively refining its output.
-
+Elsewhere, progressive growing of GANs (\cite{karras2017progressive}) produce dazzling high resolution outputs (up to $1024\times1024$ pixels). Here, training is done in stages, beginning at low resolutions ($4\times4$), and doubling the resolution at intervals. This is done by dynamically adding new layers to the generator and discriminator, which maintain symmetry throughout training. Thus, the GAN learns global structures first at low resolution and progressively refining its output.
